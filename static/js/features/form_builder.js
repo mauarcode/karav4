@@ -48,7 +48,8 @@ async function deleteData(url, payload) {
 }
 
 function renderFormField(campo, valor, suffix = '') {
-    let fieldHtml = `<div class="mb-3"><label for="${campo.clave}${suffix}" class="form-label">${campo.nombre}</label>`;
+    let fieldHtml = `<div class="mb-3">`;
+    fieldHtml += `<label for="${campo.clave}${suffix}" class="form-label">${campo.nombre}</label>`;
 
     // Si el campo es de tipo CATÁLOGO, usamos la estructura de 'input-group' para el botón.
     if (campo.tipo === 'CATÁLOGO' && campo.catalogo) {
