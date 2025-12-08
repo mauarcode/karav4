@@ -125,12 +125,14 @@ function renderUI(secciones, datos_guardados, sidebar, mainContent) {
         // Header de la sección con título y botón "Volver al Chat"
         const sectionHeader = document.createElement('div');
         sectionHeader.className = 'section-header';
-        sectionHeader.innerHTML = `
-            <h3>${seccion.nombre}</h3>
-            <a href="${chatUrl}" class="btn btn-outline-info btn-sm">
-                <i class="bi bi-arrow-left"></i> Volver al Chat
-            </a>
-        `;
+        const headerTitle = document.createElement('h3');
+        headerTitle.textContent = seccion.nombre;
+        const backButton = document.createElement('a');
+        backButton.href = chatUrl;
+        backButton.className = 'btn btn-outline-info btn-sm';
+        backButton.innerHTML = '<i class="bi bi-arrow-left"></i> Volver al Chat';
+        sectionHeader.appendChild(headerTitle);
+        sectionHeader.appendChild(backButton);
 
         // Contenedor con scroll independiente
         const sectionContent = document.createElement('div');
