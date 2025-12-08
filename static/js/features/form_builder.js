@@ -194,7 +194,37 @@ function renderUI(secciones, datos_guardados, mainContent) {
     mainContent.appendChild(accordionContainer);
 }
 
+// Función para ajustar el scroll cuando se abre un accordion
+function ajustarScrollAlAbrirAccordion(panelElement) {
+    // Esperar un momento para que la animación del collapse comience
+    setTimeout(() => {
+        const panelHeading = panelElement.querySelector('.panel-heading');
+        if (panelHeading) {
+            // Calcular la posición del heading
+            const headingTop = panelHeading.getBoundingClientRect().top + window.pageYOffset;
+            // Obtener el offset del header si existe (para compensar headers fijos)
+            const headerOffset = 20; // Offset adicional para mejor visualización
+            const offsetPosition = headingTop - headerOffset;
+            
+            // Hacer scroll suave hasta el título
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    }, 100); // Pequeño delay para que el collapse comience a abrirse
+}
+
 function setupEventListeners(mainContent, secciones) {
+    // Listener para eventos de collapse de Bootstrap (cuando se abre/cierra un accordion)
+    $('#form-accordion').on('shown.bs.collapse', function (e) {
+        // Cuando un accordion se abre completamente
+        const panelElement = $(e.target).closest('.panel')[0];
+        if (panelElement) {
+            ajustarScrollAlAbrirAccordion(panelElement);
+        }
+    });
+
     // Listener principal para todos los botones dentro del formulario
     mainContent.addEventListener('click', async (e) => {
         const targetButton = e.target.closest('button');
@@ -228,9 +258,8 @@ function setupEventListeners(mainContent, secciones) {
                     const nextCollapse = nextPanel.querySelector('.panel-collapse');
                     if (nextCollapse) {
                         const nextCollapseId = nextCollapse.id;
+                        // Usar el evento 'shown.bs.collapse' para ajustar el scroll automáticamente
                         $(`#${nextCollapseId}`).collapse('show');
-                        // Scroll suave al siguiente panel
-                        nextPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 } else {
                     // Si no hay más secciones, mostrar mensaje de completado
