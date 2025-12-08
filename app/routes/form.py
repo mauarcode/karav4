@@ -12,12 +12,34 @@ from .consent import get_current_candidate # Reutilizamos la dependencia de cons
 
 form_router = APIRouter()
 
+def extraer_nombre_por_idioma(nombre_obj, idioma: str = "ESP") -> str:
+    """
+    Extrae el nombre en el idioma especificado desde un objeto multiidioma.
+    Si el nombre es un string, lo devuelve tal cual.
+    """
+    if isinstance(nombre_obj, str):
+        return nombre_obj
+    if isinstance(nombre_obj, dict):
+        # Intentar obtener el idioma solicitado, con fallback a ESP
+        texto = nombre_obj.get(idioma.upper())
+        if not texto:
+            texto = nombre_obj.get("ESP")
+        if not texto:
+            # Si no hay ESP, tomar el primer valor disponible
+            texto = next(iter(nombre_obj.values()), None) if nombre_obj else None
+        return texto if texto else ""
+    return ""
+
 # En app/routes/form.py
 
 @form_router.get("/data")
 async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
     evaluacion_uuid = str(candidate_data["_id"])
     guion_secciones = candidate_data.get("guion_secciones", [])
+    
+    # Obtener el idioma del estado del usuario
+    estado_actual = await gestor_estado.obtener_estado_async(evaluacion_uuid)
+    idioma = estado_actual.get("idioma", "ESP")
     
     secciones_ordenadas = []
     for seccion_info in guion_secciones:
@@ -31,10 +53,18 @@ async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
             empresa = candidate_data.get("empresa_gestion")
             preguntas = maestro_preguntas.obtener_preguntas(nombre_archivo, empresa)
             
-            # Pre-procesamos las preguntas para el botón de catálogo
+            # Pre-procesamos las preguntas para el botón de catálogo y nombres
             for pregunta in preguntas:
+                # Convertir el nombre multiidioma a string según el idioma del usuario
+                if "nombre" in pregunta:
+                    pregunta["nombre"] = extraer_nombre_por_idioma(pregunta["nombre"], idioma)
+                
+                # Pre-procesar catálogo si existe
                 if pregunta.get("tipo") == "CATÁLOGO" and "Catálogo" in pregunta:
                     pregunta["opciones_catalogo"] = [opt.strip() for opt in pregunta["Catálogo"].split(',')]
+                    # También convertir el nombre del catálogo si es necesario
+                    if "catalogo" in pregunta and isinstance(pregunta.get("catalogo"), dict):
+                        pregunta["catalogo"] = pregunta["catalogo"].get(idioma.upper()) or pregunta["catalogo"].get("ESP", "")
 
             secciones_ordenadas.append({
                 "key": nombre_archivo,
