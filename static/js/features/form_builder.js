@@ -31,7 +31,7 @@ async function saveData(url, payload) {
 async function deleteData(url, payload) {
     try {
         const response = await fetch(url, {
-            method: 'POST', // O 'DELETE', dependiendo de tu backend
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
@@ -48,21 +48,19 @@ async function deleteData(url, payload) {
 }
 
 function renderFormField(campo, valor, suffix = '') {
-    let fieldHtml = `<div class="form-group"><label for="${campo.clave}${suffix}">${campo.nombre}</label>`;
+    let fieldHtml = `<div class="mb-3"><label for="${campo.clave}${suffix}" class="form-label">${campo.nombre}</label>`;
 
     // Si el campo es de tipo CATÁLOGO, usamos la estructura de 'input-group' para el botón.
     if (campo.tipo === 'CATÁLOGO' && campo.catalogo) {
         fieldHtml += `<div class="input-group">`;
         fieldHtml += `<input type="text" class="form-control" id="${campo.clave}${suffix}" name="${campo.clave}${suffix}" value="${valor || ''}">`;
         fieldHtml += `
-            <span class="input-group-btn">
-                <button class="btn btn-default btn-catalogo" type="button" 
-                        data-target-input="${campo.clave}${suffix}" 
-                        data-catalogo='${JSON.stringify(campo.catalogo)}'
-                        data-title="Selecciona: ${campo.nombre}">
-                    <span class="glyphicon glyphicon-list"></span>
-                </button>
-            </span>
+            <button class="btn btn-outline-secondary btn-catalogo" type="button" 
+                    data-target-input="${campo.clave}${suffix}" 
+                    data-catalogo='${JSON.stringify(campo.catalogo)}'
+                    data-title="Selecciona: ${campo.nombre}">
+                <i class="bi bi-list-ul"></i>
+            </button>
         `;
         fieldHtml += `</div>`; // Cierra input-group
     } else {
@@ -70,7 +68,7 @@ function renderFormField(campo, valor, suffix = '') {
         fieldHtml += `<input type="text" class="form-control" id="${campo.clave}${suffix}" name="${campo.clave}${suffix}" value="${valor || ''}">`;
     }
 
-    fieldHtml += `</div>`; // Cierra form-group
+    fieldHtml += `</div>`; // Cierra mb-3 (form-group en Bootstrap 5)
     return fieldHtml;
 }
 
@@ -83,16 +81,14 @@ function renderGroupRecord(preguntas, datos, index, grupoKey) {
         <div class="group-record" data-grupo-key="${grupoKey}" data-record-index="${index}">
             <div class="group-record-header">
                 <h4>Registro ${index + 1}</h4>
-                <button type="button" class="btn btn-danger btn-xs btn-delete-group-record" title="Eliminar este registro">
-                    <span class="glyphicon glyphicon-trash"></span>
+                <button type="button" class="btn btn-danger btn-sm btn-delete-group-record" title="Eliminar este registro">
+                    <i class="bi bi-trash"></i>
                 </button>
             </div>
     `;
 
-    // ▼▼▼ LÍNEA CLAVE AÑADIDA ▼▼▼
     // Añadimos un campo oculto para almacenar el ID único del registro.
     recordHtml += `<input type="hidden" name="_id_registro_${index}" value="${idRegistro}">`;
-    // ---▲▲▲ FIN DE LA LÍNEA AÑADIDA ▲▲▲
 
     preguntas.forEach(campo => {
         const suffix = `_${index}`;
@@ -107,18 +103,40 @@ function renderGroupRecord(preguntas, datos, index, grupoKey) {
 // --- Funciones Principales del Módulo ---
 
 function renderUI(secciones, datos_guardados, sidebar, mainContent) {
+    // Obtener la URL base para el botón "Volver al Chat"
+    const baseUrl = window.location.origin;
+    const basePath = window.APP_BASE_PATH || '';
+    const chatUrl = baseUrl + (basePath ? `${basePath}/chat?from_form=true` : '/chat?from_form=true');
+
     secciones.forEach(seccion => {
+        // Crear link en el sidebar
         const link = document.createElement('a');
         link.href = `#${seccion.key}`;
         link.textContent = seccion.nombre;
-        link.className = 'list-group-item';
+        link.className = 'list-group-item list-group-item-action';
         link.dataset.target = seccion.key;
         sidebar.appendChild(link);
 
+        // Crear estructura de sección con header y contenido con scroll independiente
         const sectionDiv = document.createElement('div');
         sectionDiv.id = seccion.key;
         sectionDiv.className = 'section';
-        let sectionHtml = `<h3>${seccion.nombre}</h3>`;
+
+        // Header de la sección con título y botón "Volver al Chat"
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'section-header';
+        sectionHeader.innerHTML = `
+            <h3>${seccion.nombre}</h3>
+            <a href="${chatUrl}" class="btn btn-outline-info btn-sm">
+                <i class="bi bi-arrow-left"></i> Volver al Chat
+            </a>
+        `;
+
+        // Contenedor con scroll independiente
+        const sectionContent = document.createElement('div');
+        sectionContent.className = 'section-content';
+
+        let sectionHtml = '';
 
         if (seccion.naturaleza === 'grupo') {
             const grupoKey = seccion.key.replace('.json', '');
@@ -136,12 +154,16 @@ function renderUI(secciones, datos_guardados, sidebar, mainContent) {
         } else {
             seccion.preguntas.forEach(campo => {
                 const valor = datos_guardados.entrevista[campo.clave] || '';
-                sectionHtml += renderFormField(campo, valor); // Usamos la función central
+                sectionHtml += renderFormField(campo, valor);
             });
             sectionHtml += '<button type="button" class="btn btn-primary btn-save-section">Guardar Sección</button>';
         }
 
-        sectionDiv.innerHTML = sectionHtml;
+        sectionContent.innerHTML = sectionHtml;
+
+        // Ensamblar la sección
+        sectionDiv.appendChild(sectionHeader);
+        sectionDiv.appendChild(sectionContent);
         mainContent.appendChild(sectionDiv);
     });
 }
@@ -179,7 +201,11 @@ function setupEventListeners(mainContent, secciones) {
             const sectionDiv = targetButton.closest('.section');
             const inputs = sectionDiv.querySelectorAll('input, select, textarea');
             const payload = {};
-            inputs.forEach(input => { payload[input.name] = input.value; });
+            inputs.forEach(input => { 
+                if (input.type !== 'hidden') {
+                    payload[input.name] = input.value; 
+                }
+            });
             await saveData(apiUrl('form/save_section'), payload);
         }
 
@@ -191,30 +217,36 @@ function setupEventListeners(mainContent, secciones) {
             const inputs = recordDiv.querySelectorAll('input, select, textarea');
             const payload = {};
             inputs.forEach(input => {
-                // Extrae el nombre original del campo, incluyendo _id_registro
-                const originalName = input.name.substring(0, input.name.lastIndexOf('_'));
-                payload[originalName] = input.value;
+                if (input.type !== 'hidden') {
+                    // Extrae el nombre original del campo, incluyendo _id_registro
+                    const originalName = input.name.substring(0, input.name.lastIndexOf('_'));
+                    payload[originalName] = input.value;
+                }
             });
             await saveData(apiUrl(`form/save_group_item/${grupoKey}`), payload);
         }
 
-        // Abrir el modal del catálogo
+        // Abrir el modal del catálogo (Bootstrap 5)
         if (targetButton.matches('.btn-catalogo')) {
             const targetInputId = targetButton.dataset.targetInput;
             const catalogoTitle = targetButton.dataset.title;
             const opciones = JSON.parse(targetButton.dataset.catalogo);
             const modalTitle = document.getElementById('catalogo-modal-title');
             const modalBody = document.getElementById('catalogo-modal-body');
-            modalTitle.textContent = catalogoTitle;
-            modalBody.innerHTML = '';
-            opciones.forEach(opcion => {
-                const optButton = document.createElement('button');
-                optButton.className = 'btn btn-block btn-info btn-catalogo-option';
-                optButton.textContent = opcion;
-                optButton.dataset.targetInput = targetInputId;
-                modalBody.appendChild(optButton);
-            });
-            $('#catalogo-modal').modal('show');
+            if (modalTitle) modalTitle.textContent = catalogoTitle;
+            if (modalBody) {
+                modalBody.innerHTML = '';
+                opciones.forEach(opcion => {
+                    const optButton = document.createElement('button');
+                    optButton.className = 'btn btn-outline-info w-100 mb-2 btn-catalogo-option';
+                    optButton.textContent = opcion;
+                    optButton.dataset.targetInput = targetInputId;
+                    modalBody.appendChild(optButton);
+                });
+            }
+            // Usar Bootstrap 5 modal API
+            const modal = new bootstrap.Modal(document.getElementById('catalogo-modal'));
+            modal.show();
         }
 
         // Añadir un nuevo registro de grupo
@@ -223,10 +255,12 @@ function setupEventListeners(mainContent, secciones) {
             const grupoKey = targetButton.dataset.grupoKey;
             const seccion = secciones.find(s => s.key.replace('.json', '') === grupoKey);
             const container = document.getElementById(`grupo-container-${grupoKey}`);
-            const newIndex = container.children.length;
-            const newRecordDiv = document.createElement('div');
-            newRecordDiv.innerHTML = renderGroupRecord(seccion.preguntas, {}, newIndex, grupoKey);
-            container.appendChild(newRecordDiv);
+            if (container && seccion) {
+                const newIndex = container.children.length;
+                const newRecordDiv = document.createElement('div');
+                newRecordDiv.innerHTML = renderGroupRecord(seccion.preguntas, {}, newIndex, grupoKey);
+                container.appendChild(newRecordDiv);
+            }
         }
 
         // Eliminar registro de grupo
@@ -248,10 +282,10 @@ function setupEventListeners(mainContent, secciones) {
         }
     });
 
-    // Listener para las opciones DENTRO del modal
-    const modal = document.getElementById('catalogo-modal');
-    if(modal) {
-        modal.addEventListener('click', (e) => {
+    // Listener para las opciones DENTRO del modal (Bootstrap 5)
+    const modalElement = document.getElementById('catalogo-modal');
+    if(modalElement) {
+        modalElement.addEventListener('click', (e) => {
             if (e.target.matches('.btn-catalogo-option')) {
                 const targetInputId = e.target.dataset.targetInput;
                 const selectedValue = e.target.textContent;
@@ -259,7 +293,11 @@ function setupEventListeners(mainContent, secciones) {
                 if (targetInput) {
                     targetInput.value = selectedValue;
                 }
-                $('#catalogo-modal').modal('hide');
+                // Cerrar modal con Bootstrap 5 API
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
             }
         });
     }
