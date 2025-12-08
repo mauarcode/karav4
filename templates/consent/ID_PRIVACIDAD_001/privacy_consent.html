@@ -1,0 +1,199 @@
+{% extends "consent/base_consent_bs5.html" %}
+
+{% block title %}Consentimiento de Privacidad{% endblock %}
+
+{% block form_title %}Consentimiento Expreso y por Escrito <br>(Paso 2 de 2){% endblock %}
+
+{% block consent_text %}
+
+    <p class="" style="text-align: justify;">
+        Yo,
+        {# Si estamos generando el PDF, muestra el nombre. Si no, muestra el campo para escribirlo. #}
+        {% if nombre_completo %}
+            <strong>{{ nombre_completo }}</strong>,
+        {% else %}
+        <br>
+            <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" placeholder="Escribe tu nombre completo" required  style="display: inline-block; width: 100%;">
+            <br>
+        {% endif %}
+        manifiesto que fue puesto a mi disposición el Aviso de Privacidad Integral de Candidatos el día <strong>{{ current_date_str }}</strong>. Manifiesto mi consentimiento mediante: <b>Firma autógrafa</b>. <br><br>
+
+        Consiento expreso y por escrito el uso de los datos personales para las finalidades descritas en el aviso de privacidad que se enuncian a continuación:
+
+Finalidades primarias: 
+
+a) Verificar la identidad del Candidato, para garantizar que sea Él, quien firme en el proceso de poner a la vista el Aviso de Privacidad, aceptación de términos y condiciones, y consentimiento expreso.
+b) Generar evidencia de que Estudios México realice el proceso de acuerdo con lo establecido en su Sistema de Gestión de la Calidad y Protección de Datos (SGCPD) y su Sistema de Gestión de Datos Personales (SGDP).
+c) Validar que el Candidato cumple con el perfil socioeconómico y laboral requerido por el Cliente para una eventual contratación.
+
+<br>
+
+    </p>
+
+    <h5>Finalidades que requieren consentimiento expreso:</h5>
+
+            <ul>
+            <li>
+                <strong>Datos (rubros):</strong> Identificación, Generales, Domicilio y Contacto, Académicos, Habitantes del Domicilio, Financieros, Referencia Vecinal, Referencias laborales, Fotografías, Psicometría y VOZ *
+            </li>
+            <li>
+                <strong>Objetivo:</strong> Validar que el Candidato cumple con el perfil socioeconómico y laboral requerido por el Cliente para una eventual contratación.
+            </li>
+            </ul>
+
+        <h5>Datos sensibles:</h5>
+        <ul>
+            <li><strong>Domicilio y Contacto</strong> (Geolocalización)</li>
+            <li><strong>Referencias laborales</strong> (Afiliaciones sindicales)</li>
+            <li><strong>Psicometría</strong> (Coeficiente intelectual, Inventario de Personalidad, Comportamiento y habilidades, Disposición para la Venta, Valores e Intereses, Grado de Honestidad)</li>
+            <li><strong>VOZ</strong> (Grabaciones de voz para el LVA)</li>
+        </ul>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th style="width: 100px; text-align: center;">Acepto</th>
+                    <th style="width: 100px; text-align: center;">No Acepto</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>                
+                    <td class="text-center" style="vertical-align: middle;">
+                        {# Si estamos generando el PDF, muestra una 'X'. Si no, muestra el botón de radio. #}
+                        {% if consent_choice == 'acepto' %}
+                            <strong style="font-size: 1.5em; color: black;">X</strong>
+                        {% elif not consent_choice %}
+                            <input type="radio" name="consent_choice" value="acepto" id="consent-acepto">
+                        {% endif %}
+                    </td>
+                    <td class="text-center" style="vertical-align: middle;">
+                        {# Lógica similar para "No Acepto" #}
+                        {% if consent_choice == 'no_acepto' %}
+                            <strong style="font-size: 1.5em; color: black;">X</strong>
+                        {% elif not consent_choice %}
+                            <input type="radio" name="consent_choice" value="no_acepto" id="consent-no-acepto">
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    {% endblock %}
+
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('consent-form');
+    if (!form) return;
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const nameInput = document.getElementById('nombre_completo');
+    const radioAcepto = document.getElementById('consent-acepto');
+    const radioNoAcepto = document.getElementById('consent-no-acepto');
+    const noAceptoMsg = document.getElementById('no-acepto-msg');
+    const signatureDataInput = document.getElementById('signature-data'); // <-- Input oculto para la firma
+
+    const canvas = document.getElementById('signature-pad');
+    const signaturePad = new SignaturePad(canvas);
+
+    const alertText = document.getElementById('alert-text');
+    if (alertText) {
+        alertText.style.display = 'none'; // Ocultar el mensaje de alerta inicialmente
+    }
+
+    function validateForm() {
+        const isNameFilled = nameInput.value.trim() !== '';
+        const isAceptoChecked = radioAcepto.checked;
+        const isSignatureEmpty = signaturePad.isEmpty();
+        //submitBtn.disabled = !(isNameFilled && isAceptoChecked && !isSignatureEmpty);
+    }
+
+    const clearButton = document.getElementById('clear-button');
+    clearButton.addEventListener('click', () => {
+        signaturePad.clear();
+        validateForm();
+    });
+
+    nameInput.addEventListener('input', validateForm);
+    radioAcepto.addEventListener('change', validateForm);
+    signaturePad.addEventListener("endStroke", validateForm);
+
+    radioNoAcepto.addEventListener('change', () => {
+        if (radioNoAcepto.checked && noAceptoMsg) {
+            noAceptoMsg.style.display = 'block';
+            //submitBtn.disabled = true;
+        }
+    });
+
+    radioAcepto.addEventListener('change', () => {
+        if (radioAcepto.checked && noAceptoMsg) {
+            noAceptoMsg.style.display = 'none';
+        }
+        validateForm();
+    });
+
+    // --- INICIO DE LA CORRECCIÓN CLAVE ---
+    // Añadimos un manejador para el evento 'submit' del formulario.
+    form.addEventListener('submit', function(event) {
+        // 1. Prevenimos el envío por defecto para tomar control total.
+        event.preventDefault();
+
+        // 2. Hacemos una última validación.
+        /*if (signaturePad.isEmpty() || nameInput.value.trim() === '' || !radioAcepto.checked) {
+            alert("Por favor, completa todos los campos y proporciona tu firma.");
+            return;
+        }*/
+       if (nameInput.value.trim() === ''){
+            //Hacer foco y mover el scroll hasta el input nombre_completo
+            if (alertText) {
+                alertText.style.display = 'block';
+                alertText.textContent = 'Por favor, escribe tu nombre completo.';
+            } else {
+                alert("Por favor, escribe tu nombre completo.");
+            }
+            return;
+       }
+
+       if (!radioAcepto.checked && !radioNoAcepto.checked) {
+            if (alertText) {
+                alertText.style.display = 'block';
+                alertText.textContent = 'Por favor, selecciona una opción de consentimiento (Acepto/No Acepto).';
+            } else {
+                alert('Por favor, selecciona una opción de consentimiento (Acepto/No Acepto).');
+            }
+            return;
+       }
+
+       if (radioNoAcepto.checked) {
+            if (alertText) {
+                alertText.style.display = 'block';
+                alertText.textContent = 'Para continuar, debes aceptar el consentimiento.';
+            } else {
+                alert('Para continuar, debes aceptar el consentimiento.');
+            }
+            return;
+       }
+
+       if (signaturePad.isEmpty()) {
+            if (alertText) {
+                alertText.style.display = 'block';
+                alertText.textContent = 'Por favor, proporciona tu firma.';
+            } else {
+                alert('Por favor, proporciona tu firma.');
+            }
+            return;
+       }
+
+        // 3. Convertimos la firma a formato de imagen y la guardamos en el input oculto.
+        signatureDataInput.value = signaturePad.toDataURL('image/png');
+
+        // 4. Enviamos el formulario manualmente. ¡Esto hará que avance a la siguiente página!
+        form.submit();
+    });
+    // --- FIN DE LA CORRECCIÓN CLAVE ---
+
+    //validateForm(); // Validación inicial al cargar la página.
+});
+</script>
+{% endblock %}
