@@ -5,10 +5,11 @@ import { initializeForm } from './form_builder.js';
 
 // --- PUNTO DE ENTRADA PRINCIPAL ---
 document.addEventListener('DOMContentLoaded', async () => {
+    const sidebar = document.getElementById('form-sidebar');
     const mainContent = document.getElementById('form-main-content');
     
-    if (!mainContent) {
-        console.error("Elemento del formulario no encontrado.");
+    if (!sidebar || !mainContent) {
+        console.error("Elementos del formulario no encontrados.");
         return;
     }
 
@@ -27,8 +28,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const { secciones, datos_guardados } = data;
 
-        // Le pasamos el control y los datos al módulo constructor (sidebar ya no se usa)
-        initializeForm(secciones, datos_guardados, null, mainContent);
+        // Le pasamos el control y los datos al módulo constructor
+        initializeForm(secciones, datos_guardados, sidebar, mainContent);
 
     } catch (error) {
         console.error("Fallo al obtener los datos del formulario:", error);

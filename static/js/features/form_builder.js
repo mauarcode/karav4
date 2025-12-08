@@ -17,13 +17,13 @@ async function saveData(url, payload) {
         });
         const result = await response.json();
         if (result.success) {
-            return { success: true, message: '¡Datos guardados con éxito!' };
+            alert('¡Datos guardados con éxito!');
         } else {
-            return { success: false, message: result.message || 'Error desconocido.' };
+            alert(`Error al guardar: ${result.message || 'Error desconocido.'}`);
         }
     } catch (error) {
         console.error('Error de red al guardar:', error);
-        return { success: false, message: 'Error de conexión al intentar guardar los datos.' };
+        alert('Error de conexión al intentar guardar los datos.');
     }
 }
 
@@ -31,7 +31,7 @@ async function saveData(url, payload) {
 async function deleteData(url, payload) {
     try {
         const response = await fetch(url, {
-            method: 'POST',
+            method: 'POST', // O 'DELETE', dependiendo de tu backend
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
@@ -89,8 +89,10 @@ function renderGroupRecord(preguntas, datos, index, grupoKey) {
             </div>
     `;
 
+    // ▼▼▼ LÍNEA CLAVE AÑADIDA ▼▼▼
     // Añadimos un campo oculto para almacenar el ID único del registro.
     recordHtml += `<input type="hidden" name="_id_registro_${index}" value="${idRegistro}">`;
+    // ---▲▲▲ FIN DE LA LÍNEA AÑADIDA ▲▲▲
 
     preguntas.forEach(campo => {
         const suffix = `_${index}`;
@@ -102,71 +104,29 @@ function renderGroupRecord(preguntas, datos, index, grupoKey) {
     return recordHtml;
 }
 
-// --- Funciones Principales del Módulo con Accordion ---
+// --- Funciones Principales del Módulo ---
 
-function renderUI(secciones, datos_guardados, mainContent) {
-    // Crear el contenedor del accordion
-    const accordionContainer = document.createElement('div');
-    accordionContainer.className = 'panel-group';
-    accordionContainer.id = 'form-accordion';
-    accordionContainer.setAttribute('role', 'tablist');
-    accordionContainer.setAttribute('aria-multiselectable', 'true');
+function renderUI(secciones, datos_guardados, sidebar, mainContent) {
+    secciones.forEach(seccion => {
+        const link = document.createElement('a');
+        link.href = `#${seccion.key}`;
+        link.textContent = seccion.nombre;
+        link.className = 'list-group-item';
+        link.dataset.target = seccion.key;
+        sidebar.appendChild(link);
 
-    secciones.forEach((seccion, index) => {
-        const seccionId = seccion.key.replace(/[^a-zA-Z0-9]/g, '_');
-        const headingId = `heading_${seccionId}`;
-        const collapseId = `collapse_${seccionId}`;
-        const isFirst = index === 0;
-
-        // Crear el panel del accordion
-        const panelDiv = document.createElement('div');
-        panelDiv.className = 'panel panel-default';
-        panelDiv.setAttribute('data-seccion-key', seccion.key);
-        panelDiv.setAttribute('data-seccion-index', index);
-
-        // Panel heading
-        const panelHeading = document.createElement('div');
-        panelHeading.className = 'panel-heading';
-        panelHeading.setAttribute('role', 'tab');
-        panelHeading.id = headingId;
-
-        const panelTitle = document.createElement('h4');
-        panelTitle.className = 'panel-title';
-
-        const titleLink = document.createElement('a');
-        titleLink.setAttribute('role', 'button');
-        titleLink.setAttribute('data-toggle', 'collapse');
-        titleLink.setAttribute('data-parent', '#form-accordion');
-        titleLink.href = `#${collapseId}`;
-        titleLink.setAttribute('aria-expanded', isFirst ? 'true' : 'false');
-        titleLink.setAttribute('aria-controls', collapseId);
-        if (!isFirst) {
-            titleLink.className = 'collapsed';
-        }
-        titleLink.textContent = seccion.nombre;
-
-        panelTitle.appendChild(titleLink);
-        panelHeading.appendChild(panelTitle);
-
-        // Panel collapse
-        const panelCollapse = document.createElement('div');
-        panelCollapse.id = collapseId;
-        panelCollapse.className = `panel-collapse collapse ${isFirst ? 'in' : ''}`;
-        panelCollapse.setAttribute('role', 'tabpanel');
-        panelCollapse.setAttribute('aria-labelledby', headingId);
-
-        const panelBody = document.createElement('div');
-        panelBody.className = 'panel-body';
-
-        let sectionHtml = '';
+        const sectionDiv = document.createElement('div');
+        sectionDiv.id = seccion.key;
+        sectionDiv.className = 'section';
+        let sectionHtml = `<h3>${seccion.nombre}</h3>`;
 
         if (seccion.naturaleza === 'grupo') {
             const grupoKey = seccion.key.replace('.json', '');
             const registros_guardados = datos_guardados.grupos[grupoKey] || [];
             sectionHtml += `<div id="grupo-container-${grupoKey}">`;
             if (registros_guardados.length > 0) {
-                registros_guardados.forEach((registro, regIndex) => {
-                    sectionHtml += renderGroupRecord(seccion.preguntas, registro, regIndex, grupoKey);
+                registros_guardados.forEach((registro, index) => {
+                    sectionHtml += renderGroupRecord(seccion.preguntas, registro, index, grupoKey);
                 });
             } else {
                 sectionHtml += renderGroupRecord(seccion.preguntas, {}, 0, grupoKey);
@@ -176,55 +136,38 @@ function renderUI(secciones, datos_guardados, mainContent) {
         } else {
             seccion.preguntas.forEach(campo => {
                 const valor = datos_guardados.entrevista[campo.clave] || '';
-                sectionHtml += renderFormField(campo, valor);
+                sectionHtml += renderFormField(campo, valor); // Usamos la función central
             });
-            sectionHtml += '<button type="button" class="btn btn-primary btn-save-section" data-seccion-index="' + index + '">Guardar Sección</button>';
+            sectionHtml += '<button type="button" class="btn btn-primary btn-save-section">Guardar Sección</button>';
         }
 
-        panelBody.innerHTML = sectionHtml;
-        panelCollapse.appendChild(panelBody);
-
-        // Ensamblar el panel
-        panelDiv.appendChild(panelHeading);
-        panelDiv.appendChild(panelCollapse);
-        accordionContainer.appendChild(panelDiv);
+        sectionDiv.innerHTML = sectionHtml;
+        mainContent.appendChild(sectionDiv);
     });
-
-    mainContent.innerHTML = '';
-    mainContent.appendChild(accordionContainer);
 }
 
-// Función para ajustar el scroll cuando se abre un accordion
-function ajustarScrollAlAbrirAccordion(panelElement) {
-    // Esperar un momento para que la animación del collapse comience
-    setTimeout(() => {
-        const panelHeading = panelElement.querySelector('.panel-heading');
-        if (panelHeading) {
-            // Calcular la posición del heading
-            const headingTop = panelHeading.getBoundingClientRect().top + window.pageYOffset;
-            // Obtener el offset del header si existe (para compensar headers fijos)
-            const headerOffset = 20; // Offset adicional para mejor visualización
-            const offsetPosition = headingTop - headerOffset;
-            
-            // Hacer scroll suave hasta el título
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
+function setupNavigation(sidebar, mainContent) {
+    const firstLink = sidebar.querySelector('a');
+    const firstSection = mainContent.querySelector('.section');
+    if (firstLink && firstSection) {
+        firstLink.classList.add('active');
+        firstSection.classList.add('active');
+    }
+    sidebar.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetLink = e.target.closest('a');
+        if (!targetLink) return;
+        sidebar.querySelectorAll('a').forEach(link => link.classList.remove('active'));
+        mainContent.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        targetLink.classList.add('active');
+        const targetSection = document.getElementById(targetLink.dataset.target);
+        if (targetSection) {
+            targetSection.classList.add('active');
         }
-    }, 100); // Pequeño delay para que el collapse comience a abrirse
+    });
 }
 
 function setupEventListeners(mainContent, secciones) {
-    // Listener para eventos de collapse de Bootstrap (cuando se abre/cierra un accordion)
-    $('#form-accordion').on('shown.bs.collapse', function (e) {
-        // Cuando un accordion se abre completamente
-        const panelElement = $(e.target).closest('.panel')[0];
-        if (panelElement) {
-            ajustarScrollAlAbrirAccordion(panelElement);
-        }
-    });
-
     // Listener principal para todos los botones dentro del formulario
     mainContent.addEventListener('click', async (e) => {
         const targetButton = e.target.closest('button');
@@ -233,41 +176,11 @@ function setupEventListeners(mainContent, secciones) {
         // Guardar sección de datos planos
         if (targetButton.matches('.btn-save-section')) {
             e.preventDefault();
-            const seccionIndex = parseInt(targetButton.getAttribute('data-seccion-index'));
-            const panel = targetButton.closest('.panel');
-            const panelCollapse = panel.querySelector('.panel-collapse');
-            const inputs = panelCollapse.querySelectorAll('input, select, textarea');
-            
+            const sectionDiv = targetButton.closest('.section');
+            const inputs = sectionDiv.querySelectorAll('input, select, textarea');
             const payload = {};
-            inputs.forEach(input => { 
-                if (input.type !== 'hidden') {
-                    payload[input.name] = input.value; 
-                }
-            });
-            
-            const result = await saveData(apiUrl('form/save_section'), payload);
-            
-            if (result.success) {
-                // Cerrar el accordion actual
-                const collapseId = panelCollapse.id;
-                $(`#${collapseId}`).collapse('hide');
-                
-                // Abrir el siguiente accordion
-                const nextPanel = panel.nextElementSibling;
-                if (nextPanel) {
-                    const nextCollapse = nextPanel.querySelector('.panel-collapse');
-                    if (nextCollapse) {
-                        const nextCollapseId = nextCollapse.id;
-                        // Usar el evento 'shown.bs.collapse' para ajustar el scroll automáticamente
-                        $(`#${nextCollapseId}`).collapse('show');
-                    }
-                } else {
-                    // Si no hay más secciones, mostrar mensaje de completado
-                    alert('¡Formulario completado! Todas las secciones han sido guardadas.');
-                }
-            } else {
-                alert(result.message || 'Error al guardar los datos.');
-            }
+            inputs.forEach(input => { payload[input.name] = input.value; });
+            await saveData(apiUrl('form/save_section'), payload);
         }
 
         // Guardar un registro de grupo
@@ -278,19 +191,11 @@ function setupEventListeners(mainContent, secciones) {
             const inputs = recordDiv.querySelectorAll('input, select, textarea');
             const payload = {};
             inputs.forEach(input => {
-                if (input.type !== 'hidden') {
-                    // Extrae el nombre original del campo
-                    const originalName = input.name.substring(0, input.name.lastIndexOf('_'));
-                    payload[originalName] = input.value;
-                }
+                // Extrae el nombre original del campo, incluyendo _id_registro
+                const originalName = input.name.substring(0, input.name.lastIndexOf('_'));
+                payload[originalName] = input.value;
             });
-            
-            const result = await saveData(apiUrl(`form/save_group_item/${grupoKey}`), payload);
-            if (result.success) {
-                alert(result.message || 'Registro guardado correctamente.');
-            } else {
-                alert(result.message || 'Error al guardar el registro.');
-            }
+            await saveData(apiUrl(`form/save_group_item/${grupoKey}`), payload);
         }
 
         // Abrir el modal del catálogo
@@ -300,17 +205,15 @@ function setupEventListeners(mainContent, secciones) {
             const opciones = JSON.parse(targetButton.dataset.catalogo);
             const modalTitle = document.getElementById('catalogo-modal-title');
             const modalBody = document.getElementById('catalogo-modal-body');
-            if (modalTitle) modalTitle.textContent = catalogoTitle;
-            if (modalBody) {
-                modalBody.innerHTML = '';
-                opciones.forEach(opcion => {
-                    const optButton = document.createElement('button');
-                    optButton.className = 'btn btn-block btn-info btn-catalogo-option';
-                    optButton.textContent = opcion;
-                    optButton.dataset.targetInput = targetInputId;
-                    modalBody.appendChild(optButton);
-                });
-            }
+            modalTitle.textContent = catalogoTitle;
+            modalBody.innerHTML = '';
+            opciones.forEach(opcion => {
+                const optButton = document.createElement('button');
+                optButton.className = 'btn btn-block btn-info btn-catalogo-option';
+                optButton.textContent = opcion;
+                optButton.dataset.targetInput = targetInputId;
+                modalBody.appendChild(optButton);
+            });
             $('#catalogo-modal').modal('show');
         }
 
@@ -320,12 +223,10 @@ function setupEventListeners(mainContent, secciones) {
             const grupoKey = targetButton.dataset.grupoKey;
             const seccion = secciones.find(s => s.key.replace('.json', '') === grupoKey);
             const container = document.getElementById(`grupo-container-${grupoKey}`);
-            if (container && seccion) {
-                const newIndex = container.children.length;
-                const newRecordDiv = document.createElement('div');
-                newRecordDiv.innerHTML = renderGroupRecord(seccion.preguntas, {}, newIndex, grupoKey);
-                container.appendChild(newRecordDiv);
-            }
+            const newIndex = container.children.length;
+            const newRecordDiv = document.createElement('div');
+            newRecordDiv.innerHTML = renderGroupRecord(seccion.preguntas, {}, newIndex, grupoKey);
+            container.appendChild(newRecordDiv);
         }
 
         // Eliminar registro de grupo
@@ -337,10 +238,8 @@ function setupEventListeners(mainContent, secciones) {
                 const grupoKey = recordDiv.dataset.grupoKey;
                 
                 if (registroId && grupoKey) {
-                    const result = await deleteData(apiUrl(`form/delete_group_item/${grupoKey}`), { registro_id: registroId });
-                    if (result && result.success) {
-                        recordDiv.remove();
-                    }
+                    await deleteData(apiUrl(`form/delete_group_item/${grupoKey}`), { registro_id: registroId });
+                    recordDiv.remove();
                 } else {
                     // Si es un registro nuevo sin guardar, simplemente eliminarlo
                     recordDiv.remove();
@@ -368,10 +267,10 @@ function setupEventListeners(mainContent, secciones) {
 
 /**
  * Función principal y pública de este módulo.
- * Orquesta la creación y activación del formulario con accordion.
+ * Orquesta la creación y activación del formulario.
  */
 export function initializeForm(secciones, datos_guardados, sidebar, mainContent) {
-    // Ya no usamos el sidebar, solo el mainContent
-    renderUI(secciones, datos_guardados, mainContent);
+    renderUI(secciones, datos_guardados, sidebar, mainContent);
+    setupNavigation(sidebar, mainContent);
     setupEventListeners(mainContent, secciones);
 }
