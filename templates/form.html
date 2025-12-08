@@ -40,7 +40,7 @@
 <script src="{{ url_for('static', path='js/api_helper.js') }}"></script>
 <!-- Este es el único script de la aplicación que necesitas enlazar. -->
 <!-- Al ser un módulo (type="module"), se encargará de importar 'form_builder.js' automáticamente. -->
-<script src="{{ url_for('static', path='js/features/form_handler.js?v=220251010') }}" type="module"></script>
+<script src="{{ url_for('static', path='js/features/form_handler.js?v=' + (now|int)) }}" type="module"></script>
 
 <a href="{{ build_url_path('/chat?from_form=true') }}" class="btn btn-info" style="position: fixed; bottom: 20px; right: 20px;">Volver al Chat</a>
 </body>
