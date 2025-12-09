@@ -257,25 +257,46 @@ function setupEventListeners(mainContent, secciones) {
 
         // Abrir el modal del catálogo (Bootstrap 5)
         if (targetButton.matches('.btn-catalogo')) {
+            e.preventDefault();
+            e.stopPropagation();
             const targetInputId = targetButton.dataset.targetInput;
-            const catalogoTitle = targetButton.dataset.title;
-            const opciones = JSON.parse(targetButton.dataset.catalogo);
+            const catalogoTitle = targetButton.dataset.title || 'Selecciona una opción';
+            let opciones = [];
+            try {
+                const catalogoData = targetButton.dataset.catalogo;
+                if (catalogoData) {
+                    opciones = JSON.parse(catalogoData);
+                }
+            } catch (error) {
+                console.error('[ERROR] Error al parsear catálogo:', error);
+            }
+            
             const modalTitle = document.getElementById('catalogo-modal-title');
             const modalBody = document.getElementById('catalogo-modal-body');
+            const modalElement = document.getElementById('catalogo-modal');
+            
             if (modalTitle) modalTitle.textContent = catalogoTitle;
             if (modalBody) {
                 modalBody.innerHTML = '';
-                opciones.forEach(opcion => {
-                    const optButton = document.createElement('button');
-                    optButton.className = 'btn btn-outline-info w-100 mb-2 btn-catalogo-option';
-                    optButton.textContent = opcion;
-                    optButton.dataset.targetInput = targetInputId;
-                    modalBody.appendChild(optButton);
-                });
+                if (Array.isArray(opciones) && opciones.length > 0) {
+                    opciones.forEach(opcion => {
+                        const optButton = document.createElement('button');
+                        optButton.type = 'button';
+                        optButton.className = 'btn btn-outline-info w-100 mb-2 btn-catalogo-option';
+                        optButton.textContent = opcion;
+                        optButton.dataset.targetInput = targetInputId;
+                        modalBody.appendChild(optButton);
+                    });
+                } else {
+                    modalBody.innerHTML = '<p class="text-muted">No hay opciones disponibles en el catálogo.</p>';
+                }
             }
+            
             // Usar Bootstrap 5 modal API
-            const modal = new bootstrap.Modal(document.getElementById('catalogo-modal'));
-            modal.show();
+            if (modalElement) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+                modal.show();
+            }
         }
 
         // Añadir un nuevo registro de grupo
