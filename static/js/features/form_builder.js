@@ -197,6 +197,11 @@ function renderUI(secciones, datos_guardados, sidebar, mainContent) {
     });
 }
 
+function getBootstrap() {
+    // Asegura acceso seguro a la instancia global de Bootstrap
+    return window.bootstrap || null;
+}
+
 function setupNavigation(sidebar, mainContent) {
     const firstLink = sidebar.querySelector('a');
     const firstSection = mainContent.querySelector('.section');
@@ -206,8 +211,9 @@ function setupNavigation(sidebar, mainContent) {
     }
     
     // Obtener referencia al offcanvas
+    const bs = getBootstrap();
     const offcanvasElement = document.getElementById('offcanvasSecciones');
-    const offcanvas = offcanvasElement ? bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement) : null;
+    const offcanvas = bs && offcanvasElement ? bs.Offcanvas.getOrCreateInstance(offcanvasElement) : null;
     
     sidebar.addEventListener('click', (e) => {
         e.preventDefault();
@@ -230,12 +236,13 @@ function setupNavigation(sidebar, mainContent) {
     });
     
     // Abrir el offcanvas automáticamente al cargar por primera vez
-    if (offcanvas) {
-        // Usar setTimeout para asegurar que el DOM esté completamente renderizado
-        setTimeout(() => {
-            offcanvas.show();
-        }, 100);
-    }
+    // Si no hay bootstrap, no intentamos mostrar el offcanvas
+    if (!offcanvas) return;
+
+    // Usar setTimeout para asegurar que el DOM esté completamente renderizado
+    setTimeout(() => {
+        offcanvas.show();
+    }, 150);
 }
 
 function setupEventListeners(mainContent, secciones) {
@@ -258,9 +265,10 @@ function setupEventListeners(mainContent, secciones) {
             await saveData(apiUrl('form/save_section'), payload);
             
             // Abrir el offcanvas después de guardar
+            const bs = getBootstrap();
             const offcanvasElement = document.getElementById('offcanvasSecciones');
-            if (offcanvasElement) {
-                const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement);
+            if (bs && offcanvasElement) {
+                const offcanvas = bs.Offcanvas.getOrCreateInstance(offcanvasElement);
                 offcanvas.show();
             }
         }
