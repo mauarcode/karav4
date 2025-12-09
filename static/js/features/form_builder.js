@@ -334,8 +334,15 @@ function setupEventListeners(mainContent, secciones) {
                 const targetInputId = e.target.dataset.targetInput;
                 const selectedValue = e.target.textContent;
                 const targetInput = document.getElementById(targetInputId);
+                // Buscar el select asociado y actualizarlo también
+                const catalogoSelect = document.querySelector(`.catalogo-select[data-target-input="${targetInputId}"]`);
                 if (targetInput) {
                     targetInput.value = selectedValue;
+                    // Disparar evento input para que el floating label se ajuste
+                    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                if (catalogoSelect) {
+                    catalogoSelect.value = selectedValue;
                 }
                 // Cerrar modal con Bootstrap 5 API
                 const modal = bootstrap.Modal.getInstance(modalElement);
