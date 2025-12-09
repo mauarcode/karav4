@@ -133,15 +133,31 @@ function renderUI(secciones, datos_guardados, sidebar, mainContent) {
         sectionDiv.id = seccion.key;
         sectionDiv.className = 'section';
 
-        // Header de la sección con título y botón "Volver al Chat"
+        // Header de la sección con título, botón para abrir menú y botón "Volver al Chat"
         const sectionHeader = document.createElement('div');
         sectionHeader.className = 'section-header';
+        
+        // Botón para abrir el offcanvas
+        const menuButton = document.createElement('button');
+        menuButton.type = 'button';
+        menuButton.className = 'btn btn-outline-secondary btn-sm';
+        menuButton.setAttribute('data-bs-toggle', 'offcanvas');
+        menuButton.setAttribute('data-bs-target', '#offcanvasSecciones');
+        menuButton.setAttribute('aria-controls', 'offcanvasSecciones');
+        menuButton.innerHTML = '<i class="bi bi-list"></i> Menú';
+        menuButton.title = 'Abrir menú de secciones';
+        
         const headerTitle = document.createElement('h3');
         headerTitle.textContent = seccion.nombre;
+        headerTitle.style.flex = '1';
+        headerTitle.style.margin = '0';
+        
         const backButton = document.createElement('a');
         backButton.href = chatUrl;
         backButton.className = 'btn btn-outline-info btn-sm';
         backButton.innerHTML = '<i class="bi bi-arrow-left"></i> Volver al Chat';
+        
+        sectionHeader.appendChild(menuButton);
         sectionHeader.appendChild(headerTitle);
         sectionHeader.appendChild(backButton);
 
@@ -220,6 +236,13 @@ function setupEventListeners(mainContent, secciones) {
                 }
             });
             await saveData(apiUrl('form/save_section'), payload);
+            
+            // Abrir el offcanvas después de guardar
+            const offcanvasElement = document.getElementById('offcanvasSecciones');
+            if (offcanvasElement) {
+                const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement);
+                offcanvas.show();
+            }
         }
 
         // Guardar un registro de grupo

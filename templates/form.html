@@ -17,19 +17,11 @@
             height: 100vh;
             overflow: hidden;
         }
-        .sidebar {
-            width: 250px;
-            min-width: 200px;
-            max-width: 300px;
-            border-right: 1px solid #dee2e6;
-            background-color: #fff;
-            overflow-y: auto;
-            overflow-x: hidden;
+        /* Estilos para el offcanvas y sus elementos */
+        #form-sidebar {
             padding: 0;
-            flex-shrink: 0;
-            height: 100vh;
         }
-        .sidebar .list-group-item {
+        #form-sidebar .list-group-item {
             border: none;
             border-bottom: 1px solid #dee2e6;
             border-radius: 0;
@@ -38,10 +30,10 @@
             transition: background-color 0.2s;
             font-size: 0.95rem;
         }
-        .sidebar .list-group-item:hover {
+        #form-sidebar .list-group-item:hover {
             background-color: #f8f9fa;
         }
-        .sidebar .list-group-item.active {
+        #form-sidebar .list-group-item.active {
             background-color: #0d6efd;
             color: white;
             font-weight: 500;
@@ -171,17 +163,8 @@
             border-top-right-radius: 0.375rem;
             border-bottom-right-radius: 0.375rem;
         }
-        /* Responsive para móviles - mantener layout horizontal pero ajustar tamaños */
+        /* Responsive para móviles */
         @media (max-width: 768px) {
-            .sidebar {
-                width: 180px;
-                min-width: 150px;
-                font-size: 0.85rem;
-            }
-            .sidebar .list-group-item {
-                padding: 12px 15px;
-                font-size: 0.85rem;
-            }
             .section-header {
                 padding: 15px 20px;
                 flex-wrap: wrap;
@@ -197,10 +180,6 @@
             }
         }
         @media (max-width: 480px) {
-            .sidebar {
-                width: 150px;
-                min-width: 120px;
-            }
             .section-header h3 {
                 font-size: 1.1rem;
             }
@@ -212,9 +191,19 @@
 </head>
 <body>
     <div class="container-fluid mt-3 form-container">
-        <nav class="sidebar" id="form-sidebar">
-            <!-- Se llenará dinámicamente -->
-        </nav>
+        <!-- Offcanvas para el menú de secciones -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasSecciones" aria-labelledby="offcanvasSeccionesLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasSeccionesLabel">Secciones del Formulario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <nav class="list-group" id="form-sidebar">
+                    <!-- Se llenará dinámicamente -->
+                </nav>
+            </div>
+        </div>
+        
         <main class="main-form" id="form-main-content">
             <!-- Se llenará dinámicamente -->
         </main>
