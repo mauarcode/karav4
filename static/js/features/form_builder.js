@@ -204,10 +204,17 @@ function setupNavigation(sidebar, mainContent) {
         firstLink.classList.add('active');
         firstSection.classList.add('active');
     }
+    
+    // Obtener referencia al offcanvas
+    const offcanvasElement = document.getElementById('offcanvasSecciones');
+    const offcanvas = offcanvasElement ? bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement) : null;
+    
     sidebar.addEventListener('click', (e) => {
         e.preventDefault();
         const targetLink = e.target.closest('a');
         if (!targetLink) return;
+        
+        // Actualizar navegación
         sidebar.querySelectorAll('a').forEach(link => link.classList.remove('active'));
         mainContent.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
         targetLink.classList.add('active');
@@ -215,7 +222,20 @@ function setupNavigation(sidebar, mainContent) {
         if (targetSection) {
             targetSection.classList.add('active');
         }
+        
+        // Cerrar el offcanvas después de seleccionar una sección
+        if (offcanvas) {
+            offcanvas.hide();
+        }
     });
+    
+    // Abrir el offcanvas automáticamente al cargar por primera vez
+    if (offcanvas) {
+        // Usar setTimeout para asegurar que el DOM esté completamente renderizado
+        setTimeout(() => {
+            offcanvas.show();
+        }, 100);
+    }
 }
 
 function setupEventListeners(mainContent, secciones) {
