@@ -51,17 +51,8 @@ function renderFormField(campo, valor, suffix = '') {
     const fieldId = `${campo.clave}${suffix}`;
     const placeholder = campo.nombre || 'Ingrese un valor';
     
-    // Si el campo es de tipo CATÁLOGO, creamos un input-group con dropdown y botón de modal
+    // Si el campo es de tipo CATÁLOGO, creamos un input-group con botón de modal
     if (campo.tipo === 'CATÁLOGO' && campo.catalogo) {
-        // Crear opciones del dropdown desde el catálogo
-        let selectOptions = '<option value="">Seleccionar del catálogo...</option>';
-        if (Array.isArray(campo.catalogo)) {
-            campo.catalogo.forEach(opcion => {
-                const selected = (valor === opcion) ? 'selected' : '';
-                selectOptions += `<option value="${opcion}" ${selected}>${opcion}</option>`;
-            });
-        }
-        
         let fieldHtml = `<div class="input-group mb-3">`;
         // Input de texto con floating label
         fieldHtml += `<div class="form-floating flex-grow-1">`;
@@ -69,18 +60,13 @@ function renderFormField(campo, valor, suffix = '') {
         fieldHtml += `<label for="${fieldId}">${campo.nombre}</label>`;
         fieldHtml += `</div>`;
         
-        // Dropdown select con opciones del catálogo
-        fieldHtml += `<select class="form-select catalogo-select" style="max-width: 200px;" data-target-input="${fieldId}" aria-label="Seleccionar del catálogo">`;
-        fieldHtml += selectOptions;
-        fieldHtml += `</select>`;
-        
         // Botón para abrir modal con catálogo completo
         fieldHtml += `
             <button class="btn btn-outline-secondary btn-catalogo" type="button" 
                     data-target-input="${fieldId}" 
                     data-catalogo='${JSON.stringify(campo.catalogo)}'
                     data-title="Selecciona: ${campo.nombre}"
-                    title="Ver catálogo completo">
+                    title="Seleccionar del catálogo">
                 <i class="bi bi-list-ul"></i>
             </button>
         `;
@@ -355,15 +341,10 @@ function setupEventListeners(mainContent, secciones) {
                 const targetInputId = e.target.dataset.targetInput;
                 const selectedValue = e.target.textContent;
                 const targetInput = document.getElementById(targetInputId);
-                // Buscar el select asociado y actualizarlo también
-                const catalogoSelect = document.querySelector(`.catalogo-select[data-target-input="${targetInputId}"]`);
                 if (targetInput) {
                     targetInput.value = selectedValue;
                     // Disparar evento input para que el floating label se ajuste
                     targetInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-                if (catalogoSelect) {
-                    catalogoSelect.value = selectedValue;
                 }
                 // Cerrar modal con Bootstrap 5 API
                 const modal = bootstrap.Modal.getInstance(modalElement);
