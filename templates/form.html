@@ -136,6 +136,25 @@
             padding: 0.75rem 1.5rem;
             font-weight: 500;
         }
+        .catalogo-select {
+            border-left: none;
+        }
+        .input-group .form-floating {
+            flex: 1;
+        }
+        .input-group .form-floating .form-control {
+            border-radius: 0;
+        }
+        .input-group .form-floating:first-child .form-control {
+            border-top-left-radius: 0.375rem;
+            border-bottom-left-radius: 0.375rem;
+        }
+        .input-group .catalogo-select:not(:last-child) {
+            border-right: none;
+        }
+        .input-group .btn-catalogo {
+            border-left: none;
+        }
         /* Responsive para móviles - mantener layout horizontal pero ajustar tamaños */
         @media (max-width: 768px) {
             .sidebar {
@@ -176,7 +195,7 @@
     </style>
 </head>
 <body>
-    <div class="container-fluid form-container">
+    <div class="container-fluid mt-3 form-container">
         <nav class="sidebar" id="form-sidebar">
             <!-- Se llenará dinámicamente -->
         </nav>

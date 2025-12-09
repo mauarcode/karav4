@@ -48,29 +48,52 @@ async function deleteData(url, payload) {
 }
 
 function renderFormField(campo, valor, suffix = '') {
-    let fieldHtml = `<div class="mb-3">`;
-    fieldHtml += `<label for="${campo.clave}${suffix}" class="form-label">${campo.nombre}</label>`;
-
-    // Si el campo es de tipo CATÁLOGO, usamos la estructura de 'input-group' para el botón.
+    const fieldId = `${campo.clave}${suffix}`;
+    const placeholder = campo.nombre || 'Ingrese un valor';
+    
+    // Si el campo es de tipo CATÁLOGO, creamos un input-group con dropdown y botón de modal
     if (campo.tipo === 'CATÁLOGO' && campo.catalogo) {
-        fieldHtml += `<div class="input-group">`;
-        fieldHtml += `<input type="text" class="form-control" id="${campo.clave}${suffix}" name="${campo.clave}${suffix}" value="${valor || ''}">`;
+        // Crear opciones del dropdown desde el catálogo
+        let selectOptions = '<option value="">Seleccionar del catálogo...</option>';
+        if (Array.isArray(campo.catalogo)) {
+            campo.catalogo.forEach(opcion => {
+                const selected = (valor === opcion) ? 'selected' : '';
+                selectOptions += `<option value="${opcion}" ${selected}>${opcion}</option>`;
+            });
+        }
+        
+        let fieldHtml = `<div class="input-group mb-3">`;
+        // Input de texto con floating label
+        fieldHtml += `<div class="form-floating flex-grow-1">`;
+        fieldHtml += `<input type="text" class="form-control" id="${fieldId}" name="${fieldId}" value="${valor || ''}" placeholder="${placeholder}">`;
+        fieldHtml += `<label for="${fieldId}">${campo.nombre}</label>`;
+        fieldHtml += `</div>`;
+        
+        // Dropdown select con opciones del catálogo
+        fieldHtml += `<select class="form-select catalogo-select" style="max-width: 200px;" data-target-input="${fieldId}" aria-label="Seleccionar del catálogo">`;
+        fieldHtml += selectOptions;
+        fieldHtml += `</select>`;
+        
+        // Botón para abrir modal con catálogo completo
         fieldHtml += `
             <button class="btn btn-outline-secondary btn-catalogo" type="button" 
-                    data-target-input="${campo.clave}${suffix}" 
+                    data-target-input="${fieldId}" 
                     data-catalogo='${JSON.stringify(campo.catalogo)}'
-                    data-title="Selecciona: ${campo.nombre}">
+                    data-title="Selecciona: ${campo.nombre}"
+                    title="Ver catálogo completo">
                 <i class="bi bi-list-ul"></i>
             </button>
         `;
         fieldHtml += `</div>`; // Cierra input-group
+        return fieldHtml;
     } else {
-        // Para campos normales, un input simple con 'form-control' es suficiente para que ocupe todo el ancho.
-        fieldHtml += `<input type="text" class="form-control" id="${campo.clave}${suffix}" name="${campo.clave}${suffix}" value="${valor || ''}">`;
+        // Para campos normales, usar floating label
+        let fieldHtml = `<div class="form-floating mb-3">`;
+        fieldHtml += `<input type="text" class="form-control" id="${fieldId}" name="${fieldId}" value="${valor || ''}" placeholder="${placeholder}">`;
+        fieldHtml += `<label for="${fieldId}">${campo.nombre}</label>`;
+        fieldHtml += `</div>`;
+        return fieldHtml;
     }
-
-    fieldHtml += `</div>`; // Cierra mb-3 (form-group en Bootstrap 5)
-    return fieldHtml;
 }
 
 // --- Reemplaza tu función 'renderGroupRecord' existente con esta ---
@@ -82,9 +105,6 @@ function renderGroupRecord(preguntas, datos, index, grupoKey) {
         <div class="group-record" data-grupo-key="${grupoKey}" data-record-index="${index}">
             <div class="group-record-header">
                 <h4>Registro ${index + 1}</h4>
-                <button type="button" class="btn btn-danger btn-sm btn-delete-group-record" title="Eliminar este registro">
-                    <i class="bi bi-trash"></i>
-                </button>
             </div>
     `;
 
@@ -97,7 +117,13 @@ function renderGroupRecord(preguntas, datos, index, grupoKey) {
         recordHtml += renderFormField(campo, valor, suffix);
     });
 
-    recordHtml += `<button type="button" class="btn btn-primary btn-sm btn-save-group-record" style="margin-top: 1rem;">Guardar Registro</button></div>`;
+    // Botones de acción al final del registro
+    recordHtml += `<div class="d-flex gap-2 mt-3">`;
+    recordHtml += `<button type="button" class="btn btn-primary btn-sm btn-save-group-record">Guardar Registro</button>`;
+    recordHtml += `<button type="button" class="btn btn-danger btn-sm btn-delete-group-record" title="Eliminar este registro">`;
+    recordHtml += `<i class="bi bi-trash"></i> Eliminar Registro`;
+    recordHtml += `</button>`;
+    recordHtml += `</div></div>`;
     return recordHtml;
 }
 
@@ -283,6 +309,22 @@ function setupEventListeners(mainContent, secciones) {
                 }
             }
         }
+    });
+
+    // Manejar cambios en los dropdowns de catálogo
+    mainContent.addEventListener('change', (e) => {
+        if (e.target.matches('.catalogo-select')) {
+            const select = e.target;
+            const targetInputId = select.dataset.targetInput;
+            const selectedValue = select.value;
+            const targetInput = document.getElementById(targetInputId);
+            if (targetInput && selectedValue) {
+                targetInput.value = selectedValue;
+                // Disparar evento input para que el floating label se ajuste
+                targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+    });
     });
 
     // Listener para las opciones DENTRO del modal (Bootstrap 5)
