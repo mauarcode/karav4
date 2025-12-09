@@ -51,26 +51,24 @@ function renderFormField(campo, valor, suffix = '') {
     const fieldId = `${campo.clave}${suffix}`;
     const placeholder = campo.nombre || 'Ingrese un valor';
     
-    // Si el campo es de tipo CATÁLOGO, creamos un input-group con botón de modal
+    // Si el campo es de tipo CATÁLOGO, creamos un select con floating label
     if (campo.tipo === 'CATÁLOGO' && campo.catalogo) {
-        let fieldHtml = `<div class="input-group mb-3">`;
-        // Input de texto con floating label
-        fieldHtml += `<div class="form-floating flex-grow-1">`;
-        fieldHtml += `<input type="text" class="form-control" id="${fieldId}" name="${fieldId}" value="${valor || ''}" placeholder="${placeholder}">`;
+        // Crear opciones del select desde el catálogo
+        let selectOptions = '<option value="">Selecciona una opción</option>';
+        if (Array.isArray(campo.catalogo)) {
+            campo.catalogo.forEach(opcion => {
+                const selected = (valor === opcion) ? 'selected' : '';
+                selectOptions += `<option value="${opcion}" ${selected}>${opcion}</option>`;
+            });
+        }
+        
+        // Select con floating label según Bootstrap 5
+        let fieldHtml = `<div class="form-floating mb-3">`;
+        fieldHtml += `<select class="form-select" id="${fieldId}" name="${fieldId}" aria-label="${campo.nombre}">`;
+        fieldHtml += selectOptions;
+        fieldHtml += `</select>`;
         fieldHtml += `<label for="${fieldId}">${campo.nombre}</label>`;
         fieldHtml += `</div>`;
-        
-        // Botón para abrir modal con catálogo completo
-        fieldHtml += `
-            <button class="btn btn-outline-secondary btn-catalogo" type="button" 
-                    data-target-input="${fieldId}" 
-                    data-catalogo='${JSON.stringify(campo.catalogo)}'
-                    data-title="Selecciona: ${campo.nombre}"
-                    title="Seleccionar del catálogo">
-                <i class="bi bi-list-ul"></i>
-            </button>
-        `;
-        fieldHtml += `</div>`; // Cierra input-group
         return fieldHtml;
     } else {
         // Para campos normales, usar floating label
