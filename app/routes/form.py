@@ -60,11 +60,35 @@ async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
                     pregunta["nombre"] = extraer_nombre_por_idioma(pregunta["nombre"], idioma)
                 
                 # Pre-procesar catálogo si existe
-                if pregunta.get("tipo") == "CATÁLOGO" and "Catálogo" in pregunta:
-                    pregunta["opciones_catalogo"] = [opt.strip() for opt in pregunta["Catálogo"].split(',')]
-                    # También convertir el nombre del catálogo si es necesario
-                    if "catalogo" in pregunta and isinstance(pregunta.get("catalogo"), dict):
-                        pregunta["catalogo"] = pregunta["catalogo"].get(idioma.upper()) or pregunta["catalogo"].get("ESP", "")
+                if pregunta.get("tipo") == "CATÁLOGO":
+                    catalogo_ref = pregunta.get("catalogo")
+                    if catalogo_ref:
+                        # Cargar el catálogo desde el archivo JSON
+                        from app.config import INV_DATOS_CATALOGOS_DIR
+                        import json
+                        catalogo_path = INV_DATOS_CATALOGOS_DIR / f"{catalogo_ref}.json"
+                        if catalogo_path.exists():
+                            try:
+                                with open(catalogo_path, 'r', encoding='utf-8') as f:
+                                    catalogo_data = json.load(f)
+                                    # Extraer los valores según el idioma del usuario
+                                    opciones_catalogo = []
+                                    if "items" in catalogo_data:
+                                        for item in catalogo_data["items"]:
+                                            valor_obj = item.get("valor", {})
+                                            if isinstance(valor_obj, dict):
+                                                # Obtener el valor en el idioma del usuario
+                                                valor_texto = valor_obj.get(idioma.upper()) or valor_obj.get("ESP") or str(valor_obj)
+                                            else:
+                                                valor_texto = str(valor_obj)
+                                            opciones_catalogo.append(valor_texto)
+                                    pregunta["catalogo"] = opciones_catalogo
+                            except Exception as e:
+                                print(f"[ERROR] No se pudo cargar el catálogo '{catalogo_ref}': {e}")
+                                pregunta["catalogo"] = []
+                        else:
+                            print(f"[WARNING] No se encontró el archivo de catálogo: {catalogo_path}")
+                            pregunta["catalogo"] = []
 
             secciones_ordenadas.append({
                 "key": nombre_archivo,
