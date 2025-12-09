@@ -318,21 +318,6 @@ function setupEventListeners(mainContent, secciones) {
         }
     });
 
-    // Manejar cambios en los dropdowns de catálogo
-    mainContent.addEventListener('change', (e) => {
-        if (e.target.matches('.catalogo-select')) {
-            const select = e.target;
-            const targetInputId = select.dataset.targetInput;
-            const selectedValue = select.value;
-            const targetInput = document.getElementById(targetInputId);
-            if (targetInput && selectedValue) {
-                targetInput.value = selectedValue;
-                // Disparar evento input para que el floating label se ajuste
-                targetInput.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        }
-    });
-
     // Listener para las opciones DENTRO del modal (Bootstrap 5)
     const modalElement = document.getElementById('catalogo-modal');
     if(modalElement) {
