@@ -109,6 +109,26 @@
         .input-group {
             margin-bottom: 0;
         }
+        /* Floating labels siempre visibles arriba, sin animación */
+        .form-floating > label {
+            opacity: 1 !important;
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem) !important;
+            transition: none !important;
+        }
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label,
+        .form-floating > .form-select ~ label {
+            opacity: 1 !important;
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem) !important;
+        }
+        .form-floating > .form-control {
+            padding-top: 1.625rem !important;
+            padding-bottom: 0.625rem !important;
+        }
+        .form-floating > .form-select {
+            padding-top: 1.625rem !important;
+            padding-bottom: 0.625rem !important;
+        }
         .group-record {
             border: 1px solid #dee2e6;
             border-radius: 0.5rem;
