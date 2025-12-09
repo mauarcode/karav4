@@ -325,7 +325,6 @@ function setupEventListeners(mainContent, secciones) {
             }
         }
     });
-    });
 
     // Listener para las opciones DENTRO del modal (Bootstrap 5)
     const modalElement = document.getElementById('catalogo-modal');
