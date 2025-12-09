@@ -97,7 +97,7 @@ function renderGroupRecord(preguntas, datos, index, grupoKey) {
         recordHtml += renderFormField(campo, valor, suffix);
     });
 
-    recordHtml += `<button type="button" class="btn btn-primary btn-sm btn-save-group-record">Guardar Registro</button></div>`;
+    recordHtml += `<button type="button" class="btn btn-primary btn-sm btn-save-group-record" style="margin-top: 1rem;">Guardar Registro</button></div>`;
     return recordHtml;
 }
 
