@@ -53,6 +53,30 @@ async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
             empresa = candidate_data.get("empresa_gestion")
             preguntas = maestro_preguntas.obtener_preguntas(nombre_archivo, empresa)
             
+            # Obtener las definiciones completas para extraer nombre_corto
+            definiciones_completas = maestro_preguntas.obtener_definiciones(nombre_archivo, empresa)
+            
+            # Extraer nombre_corto del JSON
+            nombre_seccion = nombre_archivo.replace('.json', '').replace('_', ' ').capitalize()  # Fallback
+            if definiciones_completas:
+                # El JSON puede tener estructura: {"ClaveSeccion": {"nombre_corto": {...}, "grupo_datos": [...]}}
+                # o puede tener nombre_corto directamente en el nivel superior
+                nombre_corto_obj = None
+                
+                # Buscar nombre_corto en la estructura anidada
+                if isinstance(definiciones_completas, dict):
+                    for key, value in definiciones_completas.items():
+                        if isinstance(value, dict) and "nombre_corto" in value:
+                            nombre_corto_obj = value.get("nombre_corto")
+                            break
+                    # Si no está en estructura anidada, buscar directamente
+                    if not nombre_corto_obj and "nombre_corto" in definiciones_completas:
+                        nombre_corto_obj = definiciones_completas.get("nombre_corto")
+                
+                # Si encontramos nombre_corto, extraerlo según el idioma
+                if nombre_corto_obj:
+                    nombre_seccion = extraer_nombre_por_idioma(nombre_corto_obj, idioma)
+            
             # Pre-procesamos las preguntas para el botón de catálogo y nombres
             for pregunta in preguntas:
                 # Convertir el nombre multiidioma a string según el idioma del usuario
@@ -92,7 +116,7 @@ async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
 
             secciones_ordenadas.append({
                 "key": nombre_archivo,
-                "nombre": nombre_archivo.replace('.json', '').replace('_', ' ').capitalize(),
+                "nombre": nombre_seccion,
                 "naturaleza": seccion_info.get("naturaleza", "dato_plano"),
                 "preguntas": preguntas
             })
