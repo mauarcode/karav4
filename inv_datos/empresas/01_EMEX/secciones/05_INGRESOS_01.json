@@ -1,0 +1,55 @@
+{
+  "Ingresos_01": {
+    "idiomas_disponibles": ["ESP", "ENG"],
+    "nombre_corto": {
+      "ESP": "INGRESOS",
+      "ENG": "INCOME"
+    },
+    "frase_introduccion": {
+      "ESP": "Ahora continuemos con el registro de tus ingresos.",
+      "ENG": "Please proceed with the registration of your income."
+    },
+    "grupo_datos": [
+      {
+        "id": 1,
+        "clave": "200",
+        "nombre": "Ingreso familiar"
+      },
+      {
+        "id": 2,
+        "clave": "201",
+        "nombre": "Ingreso familiar (Monto)"
+      },
+      {
+        "id": 3,
+        "clave": "202",
+        "nombre": "Ingreso secundario"
+      },
+      {
+        "id": 4,
+        "clave": "203",
+        "nombre": "Ingreso secundario (Monto)"
+      },
+      {
+        "id": 5,
+        "clave": "204",
+        "nombre": "Ingreso extraordinario"
+      },
+      {
+        "id": 6,
+        "clave": "205",
+        "nombre": "Ingreso extraordinario (Monto)"
+      },
+      {
+        "id": 7,
+        "clave": "206",
+        "nombre": "Ingreso familiar"
+      },
+      {
+        "id": 8,
+        "clave": "207",
+        "nombre": "Ingreso familiar (Monto)"
+      }
+    ]
+  }
+}

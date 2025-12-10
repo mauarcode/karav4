@@ -1,0 +1,69 @@
+{
+  "Experiencia_Laboral_G003": {
+    "idiomas_disponibles": [
+      "ESP",
+      "ENG",
+      "DEU"
+    ],
+    "clave_grupo": "G003",
+    "frase_introduccion": {
+      "ESP": "A continuación, registraremos tu experiencia laboral. Por favor, proporciona la información de tus empleos. Si no tienes experiencia laboral, puedes indicarlo y continuaremos con la siguiente sección.",
+      "ENG": "Next, we will record your work experience. Please provide the information for your jobs. If you don't have work experience, you can indicate so and we'll continue with the next section.",
+      "DEU": "Als Nächstes erfassen wir Ihre Berufserfahrung. Bitte geben Sie die Informationen zu Ihren Arbeitsstellen an. Wenn Sie keine Berufserfahrung haben, können Sie dies angeben und wir fahren mit dem nächsten Abschnitt fort."
+    },
+    "grupo_datos": [
+      {
+        "id": 1,
+        "clave": "G003_01",
+        "nombre": "Nombre comercial de la empresa"
+      },
+      {
+        "id": 2,
+        "clave": "G003_02",
+        "nombre": "Último puesto desempeñado"
+      },
+      {
+        "id": 3,
+        "clave": "G003_03",
+        "nombre": "Último sueldo percibido"
+      },
+      {
+        "id": 4,
+        "clave": "G003_04",
+        "nombre": "Fecha Ingreso"
+      },
+      {
+        "id": 5,
+        "clave": "G003_05",
+        "nombre": "Fecha Baja"
+      },
+      {
+        "id": 6,
+        "clave": "G003_06",
+        "nombre": "Nombre de Jefe"
+      },
+      {
+        "id": 7,
+        "clave": "G003_07",
+        "nombre": "Puesto de Jefe"
+      },
+      {
+        "id": 8,
+        "clave": "G003_08",
+        "nombre": "Teléfono de Jefe"
+      },
+      {
+        "id": 9,
+        "clave": "G003_09",
+        "nombre": "¿Cuentas con Carta Laboral o Carta de Recomendación?",
+        "catalogo": "C003_SINO",
+        "acepta_valores_fuera_del_catalogo": "No"
+      },
+      {
+        "id": 10,
+        "clave": "G003_10",
+        "nombre": "Dirección de la Empresa"
+      }
+    ]
+  }
+}

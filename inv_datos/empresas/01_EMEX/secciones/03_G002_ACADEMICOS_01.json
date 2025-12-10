@@ -1,0 +1,54 @@
+{
+  "Academicos_G002": {
+    "idiomas_disponibles": [
+      "ESP",
+      "ENG",
+      "DEU"
+    ],
+    "clave_grupo": "G002",
+    "frase_introduccion": {
+      "ESP": "en esta sección revisaremos tu último grado académico. En caso de que tu último grado académico sea superior a licenciatura o ingeniería, empezaremos con ello... después puedes registrar maestrías, especialidades y/o doctorados.",
+      "ENG": "In this section, we will review your highest academic degree. If your highest academic degree is above a bachelor's or engineering degree, we will start with that... afterward, you can register master's degrees, specializations, and/or doctorates.",
+      "DEU": "In diesem Abschnitt überprüfen wir Ihren höchsten akademischen Abschluss. Falls Ihr höchster Abschluss über einem Bachelor oder Ingenieurdiplom liegt, beginnen wir damit... danach können Sie Masterabschlüsse, Spezialisierungen und/oder Promotionen registrieren."
+    },
+    "grupo_datos": [
+      {
+        "id": 1,
+        "clave": "G002_01",
+        "nombre": "Año de Inicio"
+      },
+      {
+        "id": 2,
+        "clave": "G002_02",
+        "nombre": "Año Final"
+      },
+      {
+        "id": 3,
+        "clave": "G002_03",
+        "nombre": "Grado académico"
+      },
+      {
+        "id": 4,
+        "clave": "G002_04",
+        "nombre": "Institución Académica"
+      },
+      {
+        "id": 5,
+        "clave": "G002_05",
+        "nombre": "Especialidad"
+      },
+      {
+        "id": 6,
+        "clave": "G002_06",
+        "nombre": "Documento que avala (Certificado, Título, Cedula...)",
+        "catalogo": "C008_DOC_ACADEM",
+        "acepta_valores_fuera_del_catalogo": "No"
+      },
+      {
+        "id": 7,
+        "clave": "G002_07",
+        "nombre": "Cédula Profesional"
+      }
+    ]
+  }
+}

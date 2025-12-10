@@ -1,0 +1,31 @@
+{
+  "Generales_01": {
+    "idiomas_disponibles": ["ESP", "ENG"],
+    "frase_introduccion": {
+      "ESP": "Por favor, proporcione los siguientes datos generales.",
+      "ENG": "Please provide the following general information."
+    },
+    "grupo_datos": [
+      {
+        "id": 1,
+        "clave": "001",
+        "nombre": "Apellido paterno"
+      },
+      {
+        "id": 2,
+        "clave": "002",
+        "nombre": "Apellido materno"
+      },
+      {
+        "id": 3,
+        "clave": "003",
+        "nombre": "Nombre(s)"
+      },
+      {
+        "id": 4,
+        "clave": "021",
+        "nombre": "Conocidos laborando en la empresa"
+      }
+    ]
+  }
+}

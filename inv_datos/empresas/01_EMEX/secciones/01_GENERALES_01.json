@@ -1,0 +1,124 @@
+{
+  "Generales_01": {
+    "idiomas_disponibles": ["ESP", "ENG"],
+    "nombre_corto": {
+      "ESP": "DATOS GENERALES",
+      "ENG": "GENERAL INFORMATION"
+    },
+    "frase_introduccion": {
+      "ESP": "Iniciaremos la sección de datos generales. En esta sección te preguntaré sobre datos generales comunes, si deseas omitir un dato presiona el boton de omitir. En caso de que brinques la pregunta y quieras hacer un cambio, al final de la sección tendrás la oportunidad de hacer cambios a datos que ya has brindado.",
+      "ENG": "We’re about to begin the general data section. Here, I’ll ask you for common personal details. If you wish to skip any item, you can press the skip button. If you skip a question and later want to make changes, you’ll have the chance to review and update your answers at the end of this section."
+    },
+
+    "grupo_datos": [
+
+      {
+        "id": 1,
+        "clave": "001",
+        "nombre": "Apellido paterno"
+      },
+      {
+        "id": 2,
+        "clave": "002",
+        "nombre": "Apellido materno"
+      },
+      {
+        "id": 3,
+        "clave": "003",
+        "nombre": "Nombre(s)"
+      },
+      {
+        "id": 4,
+        "clave": "005",
+        "nombre": "Sexo",
+        "catalogo": "C001_SEX",
+        "acepta_valores_fuera_del_catalogo": "Si",
+        "anclar": "Si"
+      },
+      {
+        "id": 5,
+        "clave": "006",
+        "nombre": "Fecha de nacimiento"
+      },
+      {
+        "id": 6,
+        "clave": "007",
+        "nombre": "Nacionalidad"
+      },
+      {
+        "id": 7,
+        "clave": "008",
+        "nombre": "Estado de nacimiento"
+      },
+      {
+        "id": 8,
+        "clave": "009",
+        "nombre": "Municipio de nacimiento"
+      },
+      {
+        "id": 9,
+        "clave": "011",
+        "nombre": "Estado civil",
+        "catalogo": "C002_CIV",
+        "acepta_valores_fuera_del_catalogo": "Si",
+        "superior": "005"
+      },
+      {
+        "id": 10,
+        "clave": "012",
+        "nombre": "CURP"
+      },
+      {
+        "id": 11,
+        "clave": "013",
+        "nombre": "RFC"
+      },
+      {
+        "id": 12,
+        "clave": "014",
+        "nombre": "Número de Seguro Social IMSS"
+      },
+      {
+        "id": 13,
+        "clave": "015",
+        "nombre": "Licencia de Conducir"
+      },
+      {
+        "id": 14,
+        "clave": "016",
+        "nombre": "Vehículo Propio",
+        "catalogo": "C003_VEH",
+        "acepta_valores_fuera_del_catalogo": "NO"
+      },
+      {
+        "id": 15,
+        "clave": "017",
+        "nombre": "Antigüedad en la ciudad"
+      },
+      {
+        "id": 16,
+        "clave": "018",
+        "nombre": "Antigüedad en el domicilio"
+      },
+      {
+        "id": 17,
+        "clave": "019",
+        "nombre": "Parentesco con el propietario del Domicilio que Habita",
+        "catalogo": "C004_PAR",
+        "acepta_valores_fuera_del_catalogo": "No"
+      },
+      {
+        "id": 18,
+        "clave": "020",
+        "nombre": "Situación Créditicia de la Vivienda",
+        "catalogo": "C005_HIP",
+        "acepta_valores_fuera_del_catalogo": "No"
+      },
+      {
+        "id": 19,
+        "clave": "021",
+        "nombre": "Conocidos laborando en la empresa"
+      }
+    ]
+  }
+}

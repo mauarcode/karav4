@@ -1,0 +1,108 @@
+{
+  "Egresos_01": {
+    "idiomas_disponibles": [
+      "ESP",
+      "ENG"
+    ],
+    "nombre_corto": {
+      "ESP": "EGRESOS",
+      "ENG": "EXPENSES"
+    },
+    "frase_introduccion": {
+      "ESP": "Ahora continuemos con el registro de tus gastos mensuales.",
+      "ENG": "Please proceed with the registration of your monthly expenses."
+    },
+    "grupo_datos": [
+      {
+        "id": 1,
+        "clave": "220",
+        "nombre": "Renta mensual"
+      },
+      {
+        "id": 2,
+        "clave": "221",
+        "nombre": "Alimentación y Limpieza al mes"
+      },
+      {
+        "id": 3,
+        "clave": "222",
+        "nombre": "Electricidad por mes"
+      },
+      {
+        "id": 4,
+        "clave": "223",
+        "nombre": "Agua Potable mensual"
+      },
+      {
+        "id": 5,
+        "clave": "224",
+        "nombre": "Gas (Natural o LP) mensual"
+      },
+      {
+        "id": 6,
+        "clave": "225",
+        "nombre": "Telefonía Fija mensual"
+      },
+      {
+        "id": 7,
+        "clave": "226",
+        "nombre": "Educación (Colegiaturas Mensuales)"
+      },
+      {
+        "id": 8,
+        "clave": "227",
+        "nombre": "Transporte/Gasolina al mes"
+      },
+      {
+        "id": 9,
+        "clave": "228",
+        "nombre": "Celulares mensual"
+      },
+      {
+        "id": 10,
+        "clave": "229",
+        "nombre": "Plataformas Digitales (Streaming, TV, etc.) total al mes"
+      },
+      {
+        "id": 11,
+        "clave": "230",
+        "nombre": "Tarjetas de Crédito (Pagos mensuales)"
+      },
+      {
+        "id": 12,
+        "clave": "231",
+        "nombre": "Cuotas de Mantenimiento mensuales"
+      },
+      {
+        "id": 13,
+        "clave": "232",
+        "nombre": "Pensión Alimenticia mensual"
+      },
+      {
+        "id": 14,
+        "clave": "233",
+        "nombre": "Hipoteca o Infonavit al mes"
+      },
+      {
+        "id": 15,
+        "clave": "234",
+        "nombre": "Diversión total al mes"
+      },
+      {
+        "id": 16,
+        "clave": "235",
+        "nombre": "Mensualidades de Clubes o Gimnasios"
+      },
+      {
+        "id": 17,
+        "clave": "236",
+        "nombre": "Vehículos (Pagos Mensuales)"
+      },
+      {
+        "id": 18,
+        "clave": "237",
+        "nombre": "Otros Gastos (Monto Mensual)"
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "30_MIRL_01": {
+    "idiomas_disponibles": ["ESP", "ENG"],
+    "frase_introduccion": {
+      "ESP": "Procederemos ahora a recolectar la documentación necesaria....",
+      "ENG": "We begin...."
+    },
+    "grupo_datos": [
+      {
+        "id": 3,
+        "clave": "01_MIRL",
+        "nombre": "MIRL"
+      }
+    ]
+  }
+}

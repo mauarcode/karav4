@@ -1,0 +1,40 @@
+{
+  "07_G005_BIENES_01": {
+    "idiomas_disponibles": [
+      "ESP",
+      "ENG"
+    ],
+    "clave_grupo": "G005_01",
+    "frase_introduccion": {
+      "ESP": "En esta sección registraremos los bienes patrimoniales asociados al candidato. Si no posees ningún bien inmueble, puedes indicarlo y continuaremos con la siguiente sección.",
+      "ENG": "In this section, we will record the candidate's assets and property. If you don't own any real estate, you can indicate so and we'll continue with the next section."
+    },
+    "grupo_datos": [
+      {
+        "id": 1,
+        "clave": "G005_01",
+        "nombre": "Tipo de Bien"
+      },
+      {
+        "id": 2,
+        "clave": "G005_02",
+        "nombre": "Descripción del Bien"
+      },
+      {
+        "id": 3,
+        "clave": "G005_03",
+        "nombre": "Valor del Bien"
+      },
+      {
+        "id": 4,
+        "clave": "G005_04",
+        "nombre": "Pago Mensual"
+      },
+      {
+        "id": 5,
+        "clave": "G005_05",
+        "nombre": "Propietario del Bien"
+      }
+    ]
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "Domicilio_01": {
+    "idiomas_disponibles": ["ESP", "ENG"],
+    "frase_introduccion": {
+      "ESP": "Ahora continuemos con los datos de tu domicilio actual.",
+      "ENG": "Please proceed with the information regarding your current residence."
+    },
+    "grupo_datos": [
+      {
+        "id": 1,
+        "clave": "100",
+        "nombre": "Calle"
+      },
+      {
+        "id": 2,
+        "clave": "101",
+        "nombre": "Número exterior"
+      },
+      {
+        "id": 3,
+        "clave": "102",
+        "nombre": "Número interior"
+      },
+      {
+        "id": 4,
+        "clave": "103",
+        "nombre": "Cruzamientos"
+      },
+      {
+        "id": 5,
+        "clave": "104",
+        "nombre": "Código postal"
+      },
+      {
+        "id": 6,
+        "clave": "107",
+        "nombre": "Estado"
+      },
+      {
+        "id": 7,
+        "clave": "106",
+        "nombre": "Municipio"
+      },
+      {
+        "id": 8,
+        "clave": "105",
+        "nombre": "Colonia"
+      },
+      {
+        "id": 9,
+        "clave": "108",
+        "nombre": "Descripción de la fachada"
+      },
+      {
+        "id": 10,
+        "clave": "109",
+        "nombre": "Referencias para llegar"
+      },
+      {
+        "id": 11,
+        "clave": "110",
+        "nombre": "Liga o link de Google Maps para ubicar tu domicilio"
+      }
+    ]
+  }
+}

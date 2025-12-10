@@ -1,0 +1,36 @@
+{
+  "00_Informativo_Lab_Est": {
+    "idiomas_disponibles": ["ESP", "ENG"],
+    "frase_introduccion": {
+      "ESP": "Procederemos ahora a recolectar la documentación necesaria....",
+      "ENG": "We begin...."
+    },
+    "grupo_datos": [
+      {
+        "id": 1,
+        "clave": "AR_01",
+        "nombre": "Identificación Oficial (Frente)"
+      },
+      {
+        "id": 2,
+        "clave": "AR_02",
+        "nombre": "Identificación Oficial (Reverso)"
+      },
+      {
+        "id": 3,
+        "clave": "AR_03",
+        "nombre": "Comprobante de domicilio"
+      },
+      {
+        "id": 4,
+        "clave": "AR_04",
+        "nombre": "Comprobante de Estudios"
+      },
+      {
+        "id": 5,
+        "clave": "AR_05",
+        "nombre": "Video presentación"
+      }
+    ]
+  }
+}

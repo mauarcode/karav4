@@ -1,0 +1,55 @@
+{
+  "08_G006_VEHICULOS_01": {
+    "idiomas_disponibles": [
+      "ESP",
+      "ENG"
+    ],
+    "clave_grupo": "G006_01",
+    "frase_introduccion": {
+      "ESP": "En esta sección registraremos los vehículos asociados al domicilio.",
+      "ENG": "In this section, we will record the vehicles associated with the household."
+    },
+    "pregunta_no_vehiculos": {
+      "ESP": "¿Cuentas con algún vehículo? Si no tienes, puedes decir 'No tengo vehículos'.",
+      "ENG": "Do you own any vehicles? If not, you can say 'I don't have any vehicles'.",
+      "DEU": "Besitzen Sie Fahrzeuge? Falls nicht, können Sie 'Ich habe keine Fahrzeuge' sagen."
+    },
+    "grupo_datos": [
+      {
+        "id": 1,
+        "clave": "G006_01",
+        "nombre": "Marca"
+      },
+      {
+        "id": 2,
+        "clave": "G006_02",
+        "nombre": "Modelo"
+      },
+      {
+        "id": 3,
+        "clave": "G006_03",
+        "nombre": "Año"
+      },
+      {
+        "id": 4,
+        "clave": "G006_04",
+        "nombre": "Valor del Bien"
+      },
+      {
+        "id": 5,
+        "clave": "G006_05",
+        "nombre": "Pago Mensual"
+      },
+      {
+        "id": 6,
+        "clave": "G006_06",
+        "nombre": "Propietario del Bien"
+      },
+      {
+        "id": 7,
+        "clave": "G006_07",
+        "nombre": "Saldo Crédito"
+      }
+    ]
+  }
+}

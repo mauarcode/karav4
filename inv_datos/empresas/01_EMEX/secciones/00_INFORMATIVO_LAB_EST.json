@@ -1,0 +1,26 @@
+{
+  "00_Informativo_Lab_Est": {
+    "idiomas_disponibles": ["ESP", "ENG"],
+    "frase_introduccion": {
+      "ESP": "Iniciaremos con esto....",
+      "ENG": "We begin...."
+    },
+    "grupo_datos": [
+      {
+        "id": 1,
+        "clave": "IN_001",
+        "nombre": null
+      },
+      {
+        "id": 2,
+        "clave": "IN_002",
+        "nombre": null
+      },
+      {
+        "id": 3,
+        "clave": "IN_003",
+        "nombre": null
+      }
+    ]
+  }
+}

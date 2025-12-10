@@ -1,0 +1,50 @@
+{
+  "Habitantes_del_domicilio_01": {
+    "idiomas_disponibles": ["ESP", "ENG"],
+    "clave_grupo": "G001_01",
+    "frase_introduccion": {
+      "ESP": "En esta sección registraremos los familiares que habitan en tu domicilio.",
+      "ENG": "In this section, we will record the family members who live in your household."
+    },
+    "grupo_datos": [
+
+      {
+        "id": 1,
+        "clave": "G001_01",
+        "nombre": "Apellido paterno"
+      },
+      {
+        "id": 2,
+        "clave": "G001_02",
+        "nombre": "Apellido materno"
+      },
+      {
+        "id": 3,
+        "clave": "G001_03",
+        "nombre": "Nombre(s)"
+      },
+      {
+        "id": 4,
+        "clave": "G001_04",
+        "nombre": "Parentesco con el habitante del domicilio"
+      },
+      {
+        "id": 5,
+        "clave": "G001_06",
+        "nombre": "Dependencia económica del habitante",
+        "catalogo": "C006_SYN",
+        "acepta_valores_fuera_del_catalogo": "No"
+      },
+      {
+        "id": 6,
+        "clave": "G001_07",
+        "nombre": "Ocupación del habitante"
+      },
+      {
+        "id": 7,
+        "clave": "G001_08",
+        "nombre": "Estado civil del habitante"
+      }
+    ]
+  }
+}
