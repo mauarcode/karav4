@@ -1,0 +1,612 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Campañas{% endblock %}
+
+{% block head_extra %}
+<style>
+    .campanas-container {
+        display: flex;
+        gap: 20px;
+        height: calc(100vh - 150px);
+        height: calc(100dvh - 150px);
+        flex-direction: row;
+    }
+    .campanas-list {
+        width: 300px;
+        min-width: 250px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+        flex-shrink: 0;
+    }
+    .campanas-form {
+        flex: 1;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 20px;
+        overflow-y: auto;
+        background-color: #fff;
+        min-width: 0;
+    }
+    
+    /* Responsive para móvil */
+    @media (max-width: 768px) {
+        .campanas-container {
+            flex-direction: column;
+            height: calc(100vh - 120px);
+            height: calc(100dvh - 120px);
+            gap: 15px;
+        }
+        
+        .campanas-list {
+            width: 100%;
+            max-height: 40vh;
+            max-height: 40dvh;
+            min-width: 0;
+        }
+        
+        .campanas-form {
+            flex: 1;
+            min-height: 0;
+            padding: 15px;
+        }
+        
+        .form-section {
+            margin-bottom: 15px;
+            padding: 12px;
+        }
+        
+        .row {
+            margin-left: -10px;
+            margin-right: -10px;
+        }
+        
+        .row > [class*="col-"] {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .campanas-list {
+            max-height: 35vh;
+            max-height: 35dvh;
+            padding: 10px;
+        }
+        
+        .campanas-form {
+            padding: 10px;
+        }
+        
+        .form-section {
+            padding: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+    }
+    .campana-item {
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .campana-item:hover {
+        background-color: #f0f0f0;
+    }
+    .campana-item.active {
+        background-color: #e3f2fd;
+        border-color: #2196F3;
+    }
+    .campana-item h4 {
+        margin: 0 0 5px 0;
+        font-size: 14px;
+    }
+    .campana-item p {
+        margin: 0;
+        font-size: 12px;
+        color: #666;
+    }
+    .btn-nueva-campana {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    .form-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+    .form-section h3 {
+        margin-top: 0;
+        font-size: 16px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+    }
+    .liga-qr-container {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #e8f5e9;
+        border-radius: 4px;
+        display: none;
+    }
+    .liga-qr-container.show {
+        display: block;
+    }
+    #qr-code {
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Campañas</h1>
+</div>
+
+<div class="campanas-container">
+    <!-- Columna izquierda: Lista de campañas -->
+    <div class="campanas-list">
+        <button type="button" class="btn btn-primary btn-nueva-campana" onclick="nuevaCampana()">
+            + Nueva Campaña
+        </button>
+        
+        <h4>Campañas Existentes</h4>
+        <div id="campanas-list">
+            {% for campana in campanas %}
+            <div class="campana-item {% if selected_campana and selected_campana.id == campana.id %}active{% endif %}" 
+                 onclick="cargarCampana('{{ campana.id }}', '{{ campana.empresa }}'); this.classList.add('active');">
+                <h4>{{ campana.nombre or campana.id }}</h4>
+                <p>{{ campana.empresa }}</p>
+                <p style="font-size: 11px; color: #999;">{{ campana.fecha_creacion[:10] if campana.fecha_creacion else '' }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Columna derecha: Formulario -->
+    <div class="campanas-form">
+        <form id="campana-form">
+            <input type="hidden" id="campana_id" name="campana_id">
+            <input type="hidden" id="campana_empresa" name="campana_empresa">
+            
+            <!-- Nombre de la campaña -->
+            <div class="form-group">
+                <label for="nombre_campana">Nombre de la Campaña:</label>
+                <input type="text" class="form-control" id="nombre_campana" name="nombre_campana" required>
+            </div>
+
+            <!-- Campos de evaluación (sin nombre/apellidos) -->
+            <div class="form-section">
+                <h3>Datos de Evaluación</h3>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="empresa_gestion">Empresa que Gestiona:</label>
+                        <select class="form-control" id="empresa_gestion" name="empresa_gestion" required>
+                            <option value="">Seleccionar</option>
+                            {% for emp in empresas %}
+                            <option value="{{ emp }}">{{ emp }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="idioma">Idioma inicial:</label>
+                        <select class="form-control" id="idioma" name="idioma">
+                            <option value="ESP" selected>ESP</option>
+                            <option value="ENG">ENG</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="empresa_solicitante">Empresa que Solicita:</label>
+                        <input type="text" class="form-control" id="empresa_solicitante" name="empresa_solicitante">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="persona_solicitante">Persona que Solicita:</label>
+                        <input type="text" class="form-control" id="persona_solicitante" name="persona_solicitante">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="analista_asignado">Analista Asignado:</label>
+                        <input type="text" class="form-control" id="analista_asignado" name="analista_asignado">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="telefono_analista">Teléfono del Analista:</label>
+                        <input type="text" class="form-control" id="telefono_analista" name="telefono_analista">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="puesto">Puesto Aplicado:</label>
+                        <input type="text" class="form-control" id="puesto" name="puesto">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="text" class="form-control" id="telefono" name="telefono">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="guion_secciones_id">Guion de Secciones:</label>
+                        <select class="form-control" id="guion_secciones_id" name="guion_secciones_id" required>
+                            <option value="">Seleccionar empresa primero</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="tipo_estudio">Tipo de Estudio:</label>
+                        <select class="form-control" id="tipo_estudio" name="tipo_estudio" required>
+                            <option value="">Seleccionar</option>
+                            <option value="INDICE_CONFLICTIVO">Índice Conflictivo</option>
+                            <option value="COMPETENCIA_LABORAL">Competencias Laborales</option>
+                            <option value="INTEGRIDAD">Integridad</option>
+                            <option value="MIRL_SOCIOLABORAL">MIRL Sociolaboral (Video, INE y 37 Preguntas)</option>
+                            <option value="MIRC">MIRC Crédito (Video, INE y 23 Preguntas)</option>
+                            <option value="ESE_STD">Estudio SocioEconómico Completo</option>
+                            <option value="TEST_CORTO">Test Prueba Corta</option>
+                            <option value="TEST_GRUPO_CORTO">Test Prueba Corta de Grupos</option>
+                            <option value="TEST">Test</option>
+                            <option value="IND_COMP_MIRL">Prueba IND, COMP y MIRL</option>
+                            <option value="MIRL_0825">MIRL 0825</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="maestro_privacidad">Maestro de Privacidad:</label>
+                        <select class="form-control" id="maestro_privacidad" name="maestro_privacidad">
+                            <option value="">Seleccionar</option>
+                            <option value="ID_PRIVACIDAD_001">ID_PRIVACIDAD_001</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>&nbsp;</label>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="requiere_consulta_credito" name="requiere_consulta_credito" value="True">
+                                <strong>¿Requiere consentimiento para consulta de reporte de crédito?</strong>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campos JSON de campaña -->
+            <div class="form-section">
+                <h3>Datos de Vacante</h3>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="vacante_titulo">Título de Vacante:</label>
+                        <input type="text" class="form-control" id="vacante_titulo" name="vacante_titulo">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="vacante_nombre_comercial">Nombre Comercial:</label>
+                        <input type="text" class="form-control" id="vacante_nombre_comercial" name="vacante_nombre_comercial">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="vacante_razon_social">Razón Social:</label>
+                        <input type="text" class="form-control" id="vacante_razon_social" name="vacante_razon_social">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="vacante_puesto">Puesto:</label>
+                        <input type="text" class="form-control" id="vacante_puesto" name="vacante_puesto">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="vacante_funciones">Funciones (separadas por comas):</label>
+                    <textarea class="form-control" id="vacante_funciones" name="vacante_funciones" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Proceso de Selección</h3>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="proceso_medio">Medio de Postulación:</label>
+                        <input type="text" class="form-control" id="proceso_medio" name="proceso_medio">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="proceso_correo">Correo:</label>
+                        <input type="email" class="form-control" id="proceso_correo" name="proceso_correo">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="proceso_duracion">Duración:</label>
+                    <input type="text" class="form-control" id="proceso_duracion" name="proceso_duracion">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Contacto</h3>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="contacto_telefono">Teléfono:</label>
+                        <input type="text" class="form-control" id="contacto_telefono" name="contacto_telefono">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="contacto_horario">Horario de Atención:</label>
+                        <input type="text" class="form-control" id="contacto_horario" name="contacto_horario">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">Guardar Campaña</button>
+            <button type="button" class="btn btn-default" onclick="limpiarFormulario()">Limpiar</button>
+        </form>
+
+        <!-- Sección para mostrar liga y QR -->
+        <div class="liga-qr-container" id="liga-qr-container">
+            <h3>Liga de Acceso Generada</h3>
+            <div class="form-group">
+                <label>Liga:</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="liga-completa" readonly>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" onclick="copiarLiga()">Copiar</button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Código QR:</label>
+                <div id="qr-code"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentCampanaId = null;
+    let currentEmpresa = null;
+
+    // Cargar guiones cuando se seleccione empresa
+    document.getElementById('empresa_gestion').addEventListener('change', function() {
+        const empresa = this.value;
+        const guionSelect = document.getElementById('guion_secciones_id');
+        guionSelect.innerHTML = '<option value="">Cargando...</option>';
+        
+        if (empresa) {
+            fetch(apiUrl(`admin/api/empresas/${encodeURIComponent(empresa)}/guiones`))
+                .then(response => response.json())
+                .then(data => {
+                    guionSelect.innerHTML = '<option value="">Seleccionar</option>';
+                    if (data.guiones && data.guiones.length > 0) {
+                        data.guiones.forEach(function(guion) {
+                            const option = document.createElement('option');
+                            option.value = guion;
+                            option.textContent = guion;
+                            guionSelect.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar guiones:', error);
+                    guionSelect.innerHTML = '<option value="">Error al cargar guiones</option>';
+                });
+        } else {
+            guionSelect.innerHTML = '<option value="">Seleccionar empresa primero</option>';
+        }
+    });
+
+    function nuevaCampana() {
+        limpiarFormulario();
+        document.querySelectorAll('.campana-item').forEach(item => item.classList.remove('active'));
+    }
+
+    function limpiarFormulario() {
+        document.getElementById('campana-form').reset();
+        document.getElementById('campana_id').value = '';
+        document.getElementById('campana_empresa').value = '';
+        document.getElementById('liga-qr-container').classList.remove('show');
+        currentCampanaId = null;
+        currentEmpresa = null;
+    }
+
+    function cargarCampana(campanaId, empresa) {
+        // Marcar como activa
+        document.querySelectorAll('.campana-item').forEach(item => item.classList.remove('active'));
+        
+        // Cargar datos de la campaña
+        fetch(apiUrl(`admin/api/campanas/${empresa}/${campanaId}`))
+            .then(response => response.json())
+            .then(data => {
+                if (data.campana) {
+                    const c = data.campana;
+                    document.getElementById('campana_id').value = campanaId;
+                    document.getElementById('campana_empresa').value = empresa;
+                    document.getElementById('nombre_campana').value = c.nombre || '';
+                    document.getElementById('empresa_gestion').value = c.empresa_gestion || '';
+                    document.getElementById('idioma').value = c.idioma_inicial || 'ESP';
+                    document.getElementById('empresa_solicitante').value = c.empresa_solicitante || '';
+                    document.getElementById('persona_solicitante').value = c.persona_solicitante || '';
+                    document.getElementById('analista_asignado').value = c.analista_asignado || '';
+                    document.getElementById('telefono_analista').value = c.telefono_analista || '';
+                    document.getElementById('puesto').value = c.puesto || '';
+                    document.getElementById('telefono').value = c.telefono || '';
+                    document.getElementById('tipo_estudio').value = c.tipo_estudio || '';
+                    document.getElementById('maestro_privacidad').value = c.maestro_privacidad || '';
+                    document.getElementById('requiere_consulta_credito').checked = c.requiere_consulta_credito || false;
+                    
+                    // Cargar guiones
+                    if (c.empresa_gestion) {
+                        document.getElementById('empresa_gestion').dispatchEvent(new Event('change'));
+                        setTimeout(() => {
+                            document.getElementById('guion_secciones_id').value = c.guion_secciones_id || '';
+                        }, 500);
+                    }
+                    
+                    // Cargar datos de vacante
+                    if (c.vacante) {
+                        document.getElementById('vacante_titulo').value = c.vacante.titulo || '';
+                        document.getElementById('vacante_nombre_comercial').value = c.vacante.nombre_comercial || '';
+                        document.getElementById('vacante_razon_social').value = c.vacante.razon_social || '';
+                        document.getElementById('vacante_puesto').value = c.vacante.puesto || '';
+                        if (c.vacante.funciones && Array.isArray(c.vacante.funciones) && c.vacante.funciones.length > 0) {
+                            document.getElementById('vacante_funciones').value = c.vacante.funciones.join(', ');
+                        } else {
+                            document.getElementById('vacante_funciones').value = '';
+                        }
+                    }
+                    
+                    // Cargar proceso de selección
+                    if (c.proceso_seleccion) {
+                        if (c.proceso_seleccion.postulacion) {
+                            document.getElementById('proceso_medio').value = c.proceso_seleccion.postulacion.medio || '';
+                            document.getElementById('proceso_correo').value = c.proceso_seleccion.postulacion.correo || '';
+                        }
+                        document.getElementById('proceso_duracion').value = c.proceso_seleccion.duracion || '';
+                    }
+                    
+                    // Cargar contacto
+                    if (c.contacto) {
+                        if (c.contacto.telefono) {
+                            document.getElementById('contacto_telefono').value = c.contacto.telefono.numero || '';
+                            if (c.contacto.telefono.horario_atencion) {
+                                const horario = c.contacto.telefono.horario_atencion;
+                                const dias = horario.dias && Array.isArray(horario.dias) ? horario.dias.join(', ') : '';
+                                const horaInicio = horario.hora_inicio || '';
+                                const horaFin = horario.hora_fin || '';
+                                document.getElementById('contacto_horario').value = dias && (horaInicio || horaFin) ? 
+                                    `${dias} ${horaInicio}-${horaFin}` : '';
+                            } else {
+                                document.getElementById('contacto_horario').value = '';
+                            }
+                        }
+                    }
+                    
+                    // Mostrar liga y QR si existe
+                    if (c.liga_completa) {
+                        document.getElementById('liga-completa').value = c.liga_completa;
+                        generarQR(c.liga_completa);
+                        document.getElementById('liga-qr-container').classList.add('show');
+                    }
+                    
+                    currentCampanaId = campanaId;
+                    currentEmpresa = empresa;
+                }
+            })
+            .catch(error => {
+                console.error('Error cargando campaña:', error);
+                console.error('Stack trace:', error.stack);
+                alert('Error al cargar la campaña: ' + (error.message || 'Error desconocido'));
+            });
+    }
+
+    document.getElementById('campana-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Recopilar datos del formulario
+        const formData = {
+            nombre_campana: document.getElementById('nombre_campana').value,
+            empresa_gestion: document.getElementById('empresa_gestion').value,
+            idioma: document.getElementById('idioma').value,
+            empresa_solicitante: document.getElementById('empresa_solicitante').value,
+            persona_solicitante: document.getElementById('persona_solicitante').value,
+            analista_asignado: document.getElementById('analista_asignado').value,
+            telefono_analista: document.getElementById('telefono_analista').value,
+            puesto: document.getElementById('puesto').value,
+            telefono: document.getElementById('telefono').value,
+            guion_secciones_id: document.getElementById('guion_secciones_id').value,
+            tipo_estudio: document.getElementById('tipo_estudio').value,
+            maestro_privacidad: document.getElementById('maestro_privacidad').value,
+            requiere_consulta_credito: document.getElementById('requiere_consulta_credito').checked,
+            vacante: {
+                titulo: document.getElementById('vacante_titulo').value,
+                nombre_comercial: document.getElementById('vacante_nombre_comercial').value,
+                razon_social: document.getElementById('vacante_razon_social').value,
+                puesto: document.getElementById('vacante_puesto').value,
+                funciones: document.getElementById('vacante_funciones').value.split(',').map(f => f.trim()).filter(f => f)
+            },
+            proceso_seleccion: {
+                postulacion: {
+                    medio: document.getElementById('proceso_medio').value,
+                    correo: document.getElementById('proceso_correo').value
+                },
+                duracion: document.getElementById('proceso_duracion').value
+            },
+            contacto: {
+                telefono: {
+                    numero: document.getElementById('contacto_telefono').value,
+                    horario_atencion: document.getElementById('contacto_horario').value ? {
+                        dias: [document.getElementById('contacto_horario').value.split(' ')[0]],
+                        hora_inicio: document.getElementById('contacto_horario').value.split(' ')[1]?.split('-')[0] || '',
+                        hora_fin: document.getElementById('contacto_horario').value.split(' ')[1]?.split('-')[1] || ''
+                    } : {}
+                }
+            }
+        };
+        
+        try {
+            const response = await fetch(apiUrl('admin/campanas/create'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache'
+                },
+                cache: 'no-store',
+                body: JSON.stringify(formData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Campaña guardada exitosamente');
+                
+                // Mostrar liga y QR
+                document.getElementById('liga-completa').value = result.liga_completa;
+                generarQR(result.liga_completa);
+                document.getElementById('liga-qr-container').classList.add('show');
+                
+                // Recargar página para mostrar nueva campaña
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                alert('Error al guardar la campaña: ' + (result.message || 'Error desconocido'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            console.error('Stack trace:', error.stack);
+            alert('Error al guardar la campaña: ' + (error.message || 'Error desconocido'));
+        }
+    });
+
+    function generarQR(text) {
+        const qrContainer = document.getElementById('qr-code');
+        qrContainer.innerHTML = '';
+        
+        // Usar servicio online de QR (más confiable y no requiere librerías)
+        const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
+        const img = document.createElement('img');
+        img.src = apiUrl;
+        img.alt = 'QR Code';
+        img.style.maxWidth = '200px';
+        img.style.height = 'auto';
+        img.onerror = function() {
+            // Si falla, intentar con otra API
+            img.src = `https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(text)}`;
+        };
+        qrContainer.appendChild(img);
+    }
+
+    function copiarLiga() {
+        const ligaInput = document.getElementById('liga-completa');
+        ligaInput.select();
+        document.execCommand('copy');
+        alert('Liga copiada al portapapeles');
+    }
+</script>
+{% endblock %}
+

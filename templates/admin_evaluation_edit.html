@@ -1,0 +1,492 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Editar Evaluación - {{ evaluation.nombre_candidato }} {{ evaluation.apellidos_candidato }}{% endblock %}
+
+{% block head_extra %}
+<style>
+    .edit-container {
+        display: flex;
+        height: calc(100vh - 70px);
+        height: calc(100dvh - 70px);
+        padding: 0;
+        position: relative;
+    }
+    
+    .sections-sidebar {
+        flex: 0 0 300px;
+        background-color: #f8f9fa;
+        border-right: 1px solid #ddd;
+        overflow-y: auto;
+        padding: 20px 0;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .sections-sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 60px;
+        left: 10px;
+        z-index: 1001;
+        background-color: #337ab7;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .sections-sidebar-toggle:hover {
+        background-color: #286090;
+    }
+    
+    .sections-sidebar h4 {
+        margin: 0 0 15px 0;
+        padding: 0 20px;
+        color: #333;
+        font-size: 16px;
+    }
+    
+    .section-button {
+        display: block;
+        width: 100%;
+        padding: 12px 20px;
+        border: none;
+        background: none;
+        text-align: left;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.2s;
+    }
+    
+    .section-button:hover {
+        background-color: #e9ecef;
+    }
+    
+    .section-button.active {
+        background-color: #337ab7;
+        color: white;
+    }
+    
+    .section-button .section-name {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 4px;
+    }
+    
+    .section-button .section-desc {
+        font-size: 12px;
+        color: #666;
+        opacity: 0.8;
+    }
+    
+    .section-button.active .section-desc {
+        color: #ccc;
+    }
+    
+    .form-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+    
+    .form-section {
+        display: none;
+    }
+    
+    .form-section.active {
+        display: block;
+    }
+    
+    .form-section h3 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 2px solid #337ab7;
+        padding-bottom: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #337ab7;
+        box-shadow: 0 0 0 0.2rem rgba(51, 122, 183, 0.25);
+        outline: none;
+    }
+    
+    .form-group .help-text {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        left: 300px;
+        background: white;
+        border-top: 1px solid #ddd;
+        padding: 15px 20px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        z-index: 100;
+    }
+    
+    /* Responsive para móvil */
+    @media (max-width: 768px) {
+        .edit-container {
+            height: calc(100vh - 50px);
+            height: calc(100dvh - 50px);
+            flex-direction: column;
+        }
+        
+        .sections-sidebar-toggle {
+            display: block;
+        }
+        
+        .sections-sidebar {
+        position: fixed;
+        top: 50px;
+        left: 0;
+        bottom: 0;
+        width: 250px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sections-sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .form-content {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 70px; /* Espacio para botones fijos */
+        }
+        
+        .form-actions {
+            left: 0;
+            right: 0;
+            padding: 10px 15px;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+            margin: 5px 0;
+        }
+        
+        .sidebar-overlay-edit {
+            display: none;
+            position: fixed;
+            top: 50px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay-edit.active {
+            display: block;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .sections-sidebar {
+            width: 220px;
+        }
+        
+        .form-content {
+            padding: 10px;
+        }
+    }
+    
+    .form-actions .btn {
+        margin-left: 10px;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin-right: 8px;
+    }
+    
+    .field-description {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<button class="sections-sidebar-toggle" onclick="toggleEditSidebar()" aria-label="Abrir menú de secciones">
+    <span class="glyphicon glyphicon-menu-hamburger"></span> Secciones
+</button>
+
+<div class="sidebar-overlay-edit" onclick="closeEditSidebar()"></div>
+
+<div class="edit-container">
+    <!-- Sidebar con secciones -->
+    <div class="sections-sidebar" id="edit-sidebar">
+        <h4>Secciones de la Evaluación</h4>
+        
+        <!-- Información Básica -->
+        <button class="section-button active" onclick="showSection('basic'); closeEditSidebarOnMobile();">
+            <span class="section-name">Información Básica</span>
+            <span class="section-desc">Datos del candidato y evaluación</span>
+        </button>
+        
+        <!-- Secciones de Entrevista -->
+        {% for section in sections %}
+        <button class="section-button" onclick="showSection('section_{{ section.id }}'); closeEditSidebarOnMobile();">
+            <span class="section-name">{{ section.categoria }}</span>
+            <span class="section-desc">{{ section.naturaleza|title }} - {{ section.datos|length }} campos</span>
+        </button>
+        {% endfor %}
+    </div>
+    
+    <!-- Contenido del formulario -->
+    <div class="form-content">
+        <form method="POST" action="{{ url_for('admin_edit_evaluation_post', evaluation_id=evaluation.id) }}" id="editForm">
+            
+            <!-- Sección: Información Básica -->
+            <div class="form-section active" id="section_basic">
+                <h3>Información Básica</h3>
+                
+                <div class="form-group">
+                    <label for="nombre_candidato">Nombre del Candidato *</label>
+                    <input type="text" id="nombre_candidato" name="nombre_candidato" 
+                           value="{{ evaluation.nombre_candidato }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="apellidos_candidato">Apellidos del Candidato *</label>
+                    <input type="text" id="apellidos_candidato" name="apellidos_candidato" 
+                           value="{{ evaluation.apellidos_candidato }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" id="telefono" name="telefono" 
+                           value="{{ evaluation.telefono or '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="puesto">Puesto</label>
+                    <input type="text" id="puesto" name="puesto" 
+                           value="{{ evaluation.puesto or '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="tipo_estudio">Tipo de Estudio</label>
+                    <input type="text" id="tipo_estudio" name="tipo_estudio" 
+                           value="{{ evaluation.tipo_estudio or '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="empresa_solicitante">Empresa Solicitante</label>
+                    <input type="text" id="empresa_solicitante" name="empresa_solicitante" 
+                           value="{{ evaluation.empresa_solicitante or '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="persona_solicitante">Persona Solicitante</label>
+                    <input type="text" id="persona_solicitante" name="persona_solicitante" 
+                           value="{{ evaluation.persona_solicitante or '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="analista_asignado">Analista Asignado</label>
+                    <input type="text" id="analista_asignado" name="analista_asignado" 
+                           value="{{ evaluation.analista_asignado or '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefono_analista">Teléfono del Analista</label>
+                    <input type="text" id="telefono_analista" name="telefono_analista" 
+                           value="{{ evaluation.telefono_analista or '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="maestro_privacidad">Maestro de Privacidad</label>
+                    <input type="text" id="maestro_privacidad" name="maestro_privacidad" 
+                           value="{{ evaluation.maestro_privacidad or '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="empresa_gestion">Empresa de Gestión</label>
+                    <input type="text" id="empresa_gestion" name="empresa_gestion" 
+                           value="{{ evaluation.empresa_gestion or '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="requiere_consulta_credito" name="requiere_consulta_credito" 
+                               {% if evaluation.requiere_consulta_credito %}checked{% endif %}>
+                        <label for="requiere_consulta_credito">Requiere Consulta de Crédito</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Secciones de Entrevista -->
+            {% for section in sections %}
+            <div class="form-section" id="section_section_{{ section.id }}">
+                <h3>{{ section.categoria }}</h3>
+                <p class="help-text">Datos de la sección {{ section.archivo }}</p>
+                
+                <!-- Campos específicos de la sección -->
+                {% for campo in section.datos %}
+                <div class="form-group">
+                    <label for="campo_{{ section.id }}_{{ campo.clave }}">
+                        {{ campo.nombre }}
+                        {% if campo.tipo == "CATÁLOGO" %}
+                            <span class="text-muted">(Catálogo)</span>
+                        {% elif campo.tipo == "FECHA" %}
+                            <span class="text-muted">(Fecha)</span>
+                        {% endif %}
+                    </label>
+                    
+                    {% if campo.tipo == "CATÁLOGO" %}
+                        <select id="campo_{{ section.id }}_{{ campo.clave }}" 
+                                name="entrevista_{{ campo.clave }}" 
+                                class="form-control">
+                            <option value="">Seleccionar...</option>
+                            {% for opcion in campo.catalogo %}
+                            <option value="{{ opcion }}" 
+                                    {% if datos_entrevista.get(campo.clave) == opcion %}selected{% endif %}>
+                                {{ opcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    {% elif campo.tipo == "FECHA" %}
+                        <input type="date" 
+                               id="campo_{{ section.id }}_{{ campo.clave }}" 
+                               name="entrevista_{{ campo.clave }}" 
+                               class="form-control"
+                               value="{{ datos_entrevista.get(campo.clave, '') }}">
+                    {% else %}
+                        <input type="text" 
+                               id="campo_{{ section.id }}_{{ campo.clave }}" 
+                               name="entrevista_{{ campo.clave }}" 
+                               class="form-control"
+                               value="{{ datos_entrevista.get(campo.clave, '') }}"
+                               placeholder="{{ campo.ejemplo or '' }}">
+                    {% endif %}
+                    
+                    {% if campo.descripcion %}
+                        <div class="field-description">{{ campo.descripcion }}</div>
+                    {% endif %}
+                    
+                    {% if campo.ejemplo %}
+                        <div class="help-text">Ejemplo: {{ campo.ejemplo }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            
+        </form>
+    </div>
+</div>
+
+<!-- Barra de acciones fija -->
+<div class="form-actions">
+    <button type="button" class="btn btn-default" onclick="window.close();">Cancelar</button>
+    <button type="submit" form="editForm" class="btn btn-primary">
+        <span class="glyphicon glyphicon-save"></span> Guardar Cambios
+    </button>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    function showSection(sectionId) {
+        // Ocultar todas las secciones
+        document.querySelectorAll('.form-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        
+        // Remover clase active de todos los botones
+        document.querySelectorAll('.section-button').forEach(button => {
+            button.classList.remove('active');
+        });
+        
+        // Mostrar la sección seleccionada
+        const targetSection = document.getElementById('section_' + sectionId);
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
+        
+        // Activar el botón correspondiente
+        if (event && event.target) {
+            event.target.classList.add('active');
+        }
+    }
+    
+    function toggleEditSidebar() {
+        const sidebar = document.getElementById('edit-sidebar');
+        const overlay = document.querySelector('.sidebar-overlay-edit');
+        sidebar.classList.toggle('open');
+        if (overlay) {
+            overlay.classList.toggle('active');
+        }
+    }
+    
+    function closeEditSidebar() {
+        const sidebar = document.getElementById('edit-sidebar');
+        const overlay = document.querySelector('.sidebar-overlay-edit');
+        sidebar.classList.remove('open');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+    }
+    
+    function closeEditSidebarOnMobile() {
+        if (window.innerWidth < 768) {
+            closeEditSidebar();
+        }
+    }
+    
+    // Cerrar sidebar al redimensionar si se vuelve desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 768) {
+            closeEditSidebar();
+        }
+    });
+    
+    // Manejar el envío del formulario
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        // Aquí se pueden agregar validaciones adicionales si es necesario
+        console.log('Enviando formulario...');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,313 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Gestión de Evaluaciones{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Estilos para el layout de dos columnas */
+    .main {
+        height: calc(100vh - 70px);
+        height: calc(100dvh - 70px);
+        padding: 0;
+        overflow: hidden;
+    }
+    .page-header {
+        margin: 20px 20px 0 20px;
+        padding-bottom: 9px;
+        border-bottom: none;
+    }
+    .evaluations-container {
+        display: flex;
+        height: calc(100% - 70px);
+        flex-direction: row;
+    }
+    .evaluations-list {
+        flex: 0 0 350px;
+        border-right: 1px solid #ddd;
+        overflow-y: auto;
+        background-color: #fff;
+    }
+    .evaluation-details {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 0 0px 20px 25px;
+        background-color: #fff;
+    }
+    
+    /* Responsive para móvil */
+    @media (max-width: 768px) {
+        .main {
+            height: calc(100vh - 50px);
+            height: calc(100dvh - 50px);
+        }
+        
+        .page-header {
+            margin: 15px 15px 0 15px;
+        }
+        
+        .evaluations-container {
+            flex-direction: column;
+            height: calc(100% - 60px);
+        }
+        
+        .evaluations-list {
+            flex: 0 0 auto;
+            max-height: 40vh;
+            max-height: 40dvh;
+            border-right: none;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .evaluation-details {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            min-height: 0;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .page-header {
+            margin: 10px 10px 0 10px;
+        }
+        
+        .evaluations-list {
+            max-height: 35vh;
+            max-height: 35dvh;
+        }
+        
+        .evaluation-details {
+            padding: 10px;
+        }
+    }
+    .list-group-item.active, .list-group-item.active:hover {
+        background-color: #337ab7;
+        border-color: #337ab7;
+        color: #fff;
+    }
+    .list-group-item.active .text-muted, .list-group-item.active small {
+        color: #eee;
+    }
+    /* Estilos para el log de chat */
+    .chat-log {
+        max-height: 500px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        padding: 15px;
+        margin-top: 15px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+    .chat-message {
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eee;
+    }
+    .chat-message:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .chat-message .sender {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 4px;
+    }
+    .chat-message.kara .sender { color: #007bff; }
+    .chat-message.candidato .sender { color: #28a745; }
+    .chat-message .message-content { padding-left: 10px; }
+    .tab-content { padding-top: 20px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-xs-12 col-md-8">
+            <h2 class="page-header">Gestión de Evaluaciones</h2>
+        </div>
+        <div class="col-xs-6 col-md-4 text-right">
+            <div class="btn-group" role="group" aria-label="...">
+                <a href="{{ url_for('admin_create_evaluation_form') }}" class="btn btn-primary">Nueva Evaluación</a>
+            </div>  
+        </div>
+    </div>
+
+  
+    
+    <div class="evaluations-container">
+        <div class="evaluations-list">
+            <div class="list-group">
+                {% if evaluations %}
+                    {% for eval in evaluations %}
+                        <div id="item_{{ eval.id }}">
+                            <a href="{{ url_for('admin_list_evaluations') }}?selected_id={{ eval.id }}" 
+                            class="list-group-item {% if selected_evaluation and selected_evaluation.id == eval.id %}active{% endif %}">
+                                <h5 class="list-group-item-heading clearfix">
+                                    <strong>{{ eval.nombre_candidato }} {{ eval.apellidos_candidato }}</strong>
+                                    {% if eval.fechahora_termino %}
+                                        <span class="label label-success pull-right" style="margin-top: 2px;">TERMINADO</span>
+                                    {% endif %}
+                                </h5>
+                                <p class="list-group-item-text">
+                                    <small>Puesto: {{ eval.puesto | safe or 'No especificado' }}</small><br>
+                                    <small>Tipo Estudio: <b>{{ eval.tipo_estudio or 'No especificado' }}</b></small><br>
+                                    <small class="text-muted">Creado: {{ eval.fecha_creacion | format_mx_largo }}</small>
+                                    {% if eval.fechahora_inicio %}
+                                        <br>
+                                        <small class="text-muted">Inicio: {{ eval.fechahora_inicio | format_mx_largo }}</small>
+                                    {% endif %}
+                                    {% if eval.fechahora_termino %}
+                                        <br>
+                                        <small class="text-muted">Terminado: {{ eval.fechahora_termino | format_mx_largo }}</small>
+                                    {% endif %}
+                                </p>
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="list-group-item">
+                        <p class="text-muted">No se encontraron evaluaciones.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="evaluation-details" style="padding-top: 15px;">
+            {% if selected_evaluation %}
+                <div class="clearfix" style="margin-bottom: 15px;">
+                    <h3 class="pull-left" style="margin-top: 0;">Detalles de la Evaluación</h3>
+                    <form method="POST" action="{{ url_for('admin_delete_evaluation', evaluation_id=selected_evaluation.id) }}" class="pull-right" onsubmit="return confirm('¿Estás seguro de que quieres eliminar PERMANENTEMENTE la evaluación de {{ selected_evaluation.nombre_candidato }}? Esta acción no se puede deshacer.');">
+                        <button type="submit" class="btn btn-danger">Eliminar Evaluación</button>
+                    </form>
+                </div>
+
+                <p>
+                    <strong>Candidato:</strong> {{ selected_evaluation.nombre_candidato }} {{ selected_evaluation.apellidos_candidato }} <br>
+                    <strong>Puesto:</strong> {{ selected_evaluation.puesto or 'N/A' }} <br>
+                    <strong>Tipo Estudio:</strong> {{ selected_evaluation.tipo_estudio or 'N/A' }} <br>
+                    <strong>ID de Evaluación:</strong> {{ selected_evaluation.id_evaluacion }} | <strong>Token:</strong> {{ selected_evaluation.token }}<br>
+                    {% if log_file_exists %}
+                        <strong>Descargar log motor ia:</strong> 
+                            <a href="{{ url_for('download_debug_log', evaluation_id=selected_evaluation.id) }}" target="_blank">Descargar Log</a>
+                        <br>
+                    {% endif %}
+                    <strong>Url:</strong> 
+                        {% set eval_path = '/evaluacion?id_evaluacion=' ~ selected_evaluation.id_evaluacion ~ '&token=' ~ selected_evaluation.token %}
+                        <a href="{{ build_url_path(eval_path) }}" target="_blank">
+                            {{ request.url.scheme }}://{{ request.url.hostname }}{{ build_url_path(eval_path) }}
+                        </a><br>
+                </p>
+
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#conversacion" aria-controls="conversacion" role="tab" data-toggle="tab">Conversación</a></li>
+                    <li role="presentation"><a href="#archivos" aria-controls="archivos" role="tab" data-toggle="tab">Archivos Adjuntos <span class="badge">{{ associated_files|length }}</span></a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="conversacion">
+                        {% if conversation_log %}
+                            <div class="chat-log">
+                                {% for msg in conversation_log %}
+                                    {# Solo procesa el mensaje si tiene rol y contenido #}
+                                    {% if msg and 'rol' in msg and 'contenido' in msg %}
+                                        <div class="chat-message {{ 'kara' if msg.rol|lower == 'kara' else 'candidato' }}">
+                                            <span class="sender">{{ msg.rol }}:</span>
+                                            {% if msg.timestamp %}
+                                            <small class="text-muted pull-right">{{ msg.timestamp | format_mx_corto }}</small>
+                                            {% endif %}
+                                            <div class="message-content">
+                                                {% if msg.contenido is string and msg.contenido.startswith('fs://') %}
+                                                    {% set parts = msg.contenido.replace('fs://', '').split('/', 1) %}
+                                                    {% set filename = parts[1] if parts|length > 1 else 'archivo' %}
+                                                    <em>Archivo adjunto: <strong>{{ filename }}</strong> (ver en la pestaña de Archivos).</em>
+                                                {% else %}
+                                                    {{ msg.contenido | replace('\n', '<br>') | safe }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No hay mensajes en esta conversación.</p>
+                        {% endif %}
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane" id="archivos">
+                        {% if file_groups %}
+                            <div class="panel-group" id="accordion-files" role="tablist" aria-multiselectable="true">
+                                
+                                {% for display_name, group_data in file_groups.items() %}
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="heading-{{ loop.index }}">
+                                        <div class="clearfix">
+                                            {# Botón para descargar el ZIP, alineado a la derecha #}
+                                            {% if group_data.files %}
+                                            <a href="{{ url_for('download_files_as_zip', evaluation_id=selected_evaluation.id, group_key=group_data.key) }}" class="btn btn-primary btn-xs pull-right">
+                                                <span class="glyphicon glyphicon-download-alt"></span> Descargar ZIP
+                                            </a>
+                                            {% endif %}
+                                            
+                                            {# Título del grupo, que es desplegable #}
+                                            <h4 class="panel-title">
+                                                <a role="button" data-toggle="collapse" href="#collapse-{{ loop.index }}" class="collapsed" aria-expanded="false" aria-controls="collapse-{{ loop.index }}">
+                                                    <span class="glyphicon glyphicon-folder-close"></span>
+                                                    {{ display_name }}
+                                                    <span class="badge">{{ group_data.files | length }}</span>
+                                                </a>
+                                            </h4>
+                                        </div>
+                                    </div>
+                                    <div id="collapse-{{ loop.index }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-{{ loop.index }}">
+                                        <ul class="list-group">
+                                            {% for file in group_data.files %}
+                                            <li class="list-group-item">
+                                                <a href="{{ url_for('download_gridfs_file', file_id=file.id) }}" target="_blank">
+                                                    <span class="glyphicon glyphicon-file"></span> {{ file.name }}
+                                                </a>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                            </div>
+                        {% else %}
+                             <p class="text-muted">No se han adjuntado archivos a esta evaluación.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% else %}
+                <div class="jumbotron" style="text-align: center; margin-top: 50px; background-color: #f9f9f9;">
+                    <h2>Panel de Evaluaciones</h2>
+                    <p class="lead">Por favor, seleccione una evaluación de la lista de la izquierda para ver sus detalles, la conversación y los archivos adjuntos.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    // Este script se ejecuta cuando la página ha cargado.
+    // Su propósito es hacer scroll automático en la lista de la izquierda para que la
+    // evaluación seleccionada quede visible, con un margen de 100px en la parte superior.
+    {% if selected_evaluation and selected_evaluation.id %}
+        const scrollContainer = document.querySelector('.evaluations-list');
+        const selectedElement = document.getElementById('item_{{ selected_evaluation.id }}');
+        
+        if (selectedElement && scrollContainer) {
+            // Calculamos la posición del elemento relativa al inicio del contenido del contenedor.
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const elementRect = selectedElement.getBoundingClientRect();
+            const elementPositionInContainer = elementRect.top - containerRect.top + scrollContainer.scrollTop;
+
+            // Hacemos scroll para que el elemento quede a 100px del borde superior.
+            scrollContainer.scrollTop = elementPositionInContainer - 100;
+        }
+    {% endif %}
+</script>
+{% endblock %}

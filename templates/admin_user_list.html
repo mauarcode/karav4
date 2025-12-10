@@ -1,0 +1,79 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
+
+{% block head_extra %}
+<style>
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    @media (max-width: 768px) {
+        .table-responsive {
+            margin: 0 -15px;
+            padding: 0 15px;
+        }
+        
+        .table {
+            font-size: 14px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 8px 4px;
+            white-space: nowrap;
+        }
+        
+        .btn-xs {
+            padding: 2px 6px;
+            font-size: 11px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .table {
+            font-size: 12px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 6px 3px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="page-header">Gestión de Usuarios</h1>
+    <p><a href="{{ url_for('admin_create_user_form') }}" class="btn btn-primary">Crear Nuevo Usuario</a></p>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Admin</th>
+                    <th>Fecha Creación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ 'Sí' if user.is_admin else 'No' }}</td>
+                    <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_edit_user_form', user_id=user.id) }}" class="btn btn-xs btn-info">Editar</a>
+                        <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.id) }}" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar a {{ user.username }}?');">
+                            <button type="submit" class="btn btn-xs btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

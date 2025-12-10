@@ -1,0 +1,79 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Gestión de Conversaciones{% endblock %}
+
+{% block head_extra %}
+<style>
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    @media (max-width: 768px) {
+        .table-responsive {
+            margin: 0 -15px;
+            padding: 0 15px;
+        }
+        
+        .table {
+            font-size: 14px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 8px 4px;
+            white-space: nowrap;
+        }
+        
+        .btn-xs {
+            padding: 2px 6px;
+            font-size: 11px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .table {
+            font-size: 12px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 6px 3px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="page-header">Gestión de Conversaciones</h1>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID Conversación</th>
+                    <th>ID Usuario (o Nombre)</th>
+                    <th>Mensajes</th>
+                    <th>Iniciada</th>
+                    <th>Última Actualización</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conversation in conversations %}
+                <tr>
+                    <td>{{ conversation.id }}</td>
+                    <td>{{ conversation.user_id }}</td>
+                    <td>{{ conversation.messages | length }}</td>
+                    <td>{{ conversation.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ conversation.last_updated.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_delete_conversation', conversation_id=conversation.id) }}" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta conversación?');">
+                            <button type="submit" class="btn btn-xs btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

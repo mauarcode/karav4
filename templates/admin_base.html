@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>{% block title %}Panel de Administración{% endblock %} - Kara</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        body { 
+            padding-top: 70px; 
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+        
+        /* Botón para abrir sidebar en móvil */
+        .sidebar-toggle-btn {
+            position: fixed;
+            top: 60px;
+            left: 10px;
+            z-index: 1001;
+            display: none;
+            background-color: #337ab7;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .sidebar-toggle-btn:hover {
+            background-color: #286090;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 50px;
+            bottom: 0;
+            left: 0;
+            z-index: 1000;
+            display: block;
+            padding: 20px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            border-right: 1px solid #eee;
+            width: 200px;
+            height: calc(100vh - 50px);
+            height: calc(100dvh - 50px);
+            transition: transform 0.3s ease;
+        }
+        
+        .main {
+            padding: 20px;
+            margin-left: 200px;
+            min-height: calc(100vh - 70px);
+            min-height: calc(100dvh - 70px);
+            overflow-y: auto;
+        }
+        
+        .main .page-header {
+            margin-top: 0;
+        }
+        
+        /* Responsive para móvil */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 50px;
+            }
+            
+            .sidebar-toggle-btn {
+                display: block;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                width: 250px;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main {
+                margin-left: 0;
+                padding: 15px;
+                width: 100%;
+            }
+            
+            /* Overlay para cerrar sidebar al hacer click fuera */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 50px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main {
+                padding: 10px;
+            }
+            
+            .sidebar {
+                width: 220px;
+            }
+        }
+    </style>
+    {% block head_extra %}{% endblock %} {# Para añadir CSS/JS extra si una página específica lo necesita #}
+</head>
+<body>
+    {# Barra de navegación superior #}
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{{ url_for('admin_dashboard') }}">Kara Admin</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Hola, {{ user.username }}</a></li>
+            <li><a href="{{ url_for('logout_user_route') }}">Cerrar Sesión</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    {# Botón para abrir sidebar en móvil #}
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Abrir menú">
+        <span class="glyphicon glyphicon-menu-hamburger"></span> Menú
+    </button>
+
+    {# Overlay para cerrar sidebar en móvil #}
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    {# Barra lateral de navegación #}
+    <div class="sidebar" id="admin-sidebar">
+        <ul class="nav nav-sidebar">
+            {# --- ¡CAMBIOS AQUÍ! CONVERTIR URL_FOR A STR --- #}
+            <li {% if request.url.path.startswith(url_for('admin_list_users')|string) %}class="active"{% endif %}><a href="{{ url_for('admin_list_users') }}" onclick="closeSidebarOnMobile()">Usuarios</a></li>
+            <li {% if request.url.path.startswith(url_for('admin_list_conversations')|string) %}class="active"{% endif %}><a href="{{ url_for('admin_list_conversations') }}" onclick="closeSidebarOnMobile()">Conversaciones</a></li>
+            <li {% if request.url.path.startswith(url_for('admin_list_evaluations')|string) %}class="active"{% endif %}><a href="{{ url_for('admin_list_evaluations') }}" onclick="closeSidebarOnMobile()">Evaluaciones</a></li>
+            <li {% if request.url.path.startswith(url_for('admin_campanas')|string) %}class="active"{% endif %}><a href="{{ url_for('admin_campanas') }}" onclick="closeSidebarOnMobile()">Campañas</a></li>
+            <li {% if request.url.path.startswith(url_for('admin_codigos_postales')|string) %}class="active"{% endif %}><a href="{{ url_for('admin_codigos_postales') }}" onclick="closeSidebarOnMobile()">Códigos Postales</a></li>
+            <li {% if request.url.path.startswith(url_for('admin_guiones')|string) %}class="active"{% endif %}><a href="{{ url_for('admin_guiones') }}" onclick="closeSidebarOnMobile()">Guiones</a></li>
+            <li {% if request.url.path.startswith(url_for('admin_secciones')|string) %}class="active"{% endif %}><a href="{{ url_for('admin_secciones') }}" onclick="closeSidebarOnMobile()">Secciones</a></li>
+            <li {% if request.url.path.startswith(url_for('admin_guiones_secciones')|string) %}class="active"{% endif %}><a href="{{ url_for('admin_guiones_secciones') }}" onclick="closeSidebarOnMobile()">Guiones y Secciones</a></li>
+            {# --- Enlace para ver usuarios activos en una nueva pestaña --- #}
+            <li><a href="{{ build_url_path('/ws/active-users') }}" target="_blank">Usuarios Activos (WS) </a></li>
+        </ul>
+    </div>
+
+    {# Contenido principal que cambia #}
+    <div class="main">
+        {% block content %}
+        {# Este bloque será reemplazado por el contenido de cada página #}
+        {% endblock %}
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>
+        // Variable global para el path base de la aplicación
+        // Se detecta automáticamente desde la URL actual sin hardcodear rutas específicas
+        window.APP_BASE_PATH = (function() {
+            const path = window.location.pathname;
+            
+            // Si estamos en la raíz, no hay prefijo
+            if (path === '/' || path === '') {
+                return '';
+            }
+            
+            // Dividir el path en segmentos
+            const segments = path.split('/').filter(s => s !== '');
+            
+            // Si hay al menos un segmento, usar el primer segmento como base path
+            // Esto detecta automáticamente /mau, /app, o cualquier otro prefijo
+            if (segments.length > 0) {
+                // Verificar si el segundo segmento parece ser parte de la aplicación
+                // (ej: /mau/admin, /mau/login, etc.)
+                if (segments.length > 1) {
+                    // Si hay múltiples segmentos, el primero es probablemente el prefijo base
+                    return '/' + segments[0];
+                }
+                // Si solo hay un segmento y parece ser un prefijo (no es una página común)
+                const commonPages = ['login', 'admin', 'api', 'static', 'ws'];
+                if (!commonPages.includes(segments[0])) {
+                    return '/' + segments[0];
+                }
+            }
+            
+            // Por defecto, no hay prefijo
+            return '';
+        })();
+        
+        /**
+         * Construye una URL con el path base detectado.
+         * @param {string} path - Ruta relativa o absoluta (ej: "/admin/evaluations" o "admin/evaluations")
+         * @returns {string} URL completa con el prefijo base si existe
+         */
+        window.apiUrl = function(path) {
+            // Remover slash inicial si existe para evitar dobles slashes
+            const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+            
+            // Si no hay prefijo base, retornar la ruta con /
+            if (!window.APP_BASE_PATH || window.APP_BASE_PATH === '') {
+                return '/' + cleanPath;
+            }
+            
+            return `${window.APP_BASE_PATH}/${cleanPath}`;
+        };
+        
+        console.log('APP_BASE_PATH detectado automáticamente:', window.APP_BASE_PATH);
+        
+        // Funciones para manejar el sidebar en móvil
+        function toggleSidebar() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('open');
+            if (overlay) {
+                overlay.classList.toggle('active');
+            }
+        }
+        
+        function closeSidebar() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.remove('open');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+        }
+        
+        function closeSidebarOnMobile() {
+            // Solo cerrar en móvil (ancho < 768px)
+            if (window.innerWidth < 768) {
+                closeSidebar();
+            }
+        }
+        
+        // Cerrar sidebar al redimensionar si se vuelve desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+                closeSidebar();
+            }
+        });
+    </script>
+    {% block scripts_extra %}{% endblock %} {# Para añadir scripts JS extra si una página específica lo necesita #}
+</body>
+</html>

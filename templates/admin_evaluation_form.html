@@ -1,0 +1,264 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ 'Crear' if mode == 'create' else 'Editar' }} Evaluación{% endblock %}
+
+{% block head_extra %}
+<style>
+    @media (max-width: 768px) {
+        .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+        
+        .row > [class*="col-"] {
+            width: 100%;
+            padding-left: 0;
+            padding-right: 0;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="page-header">{{ 'Crear Nueva' if mode == 'create' else 'Editar' }} Evaluación</h1>
+    
+    <form method="POST" action="{{ url_for('admin_create_evaluation_post') if mode == 'create' else url_for('admin_edit_evaluation_post', evaluation_id=target_evaluation.id) }}">
+        <!-- Primera fila: Empresa que gestiona, Campaña, Idioma, Empresa que solicita -->
+        <div class="row">
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="empresa_gestion">Empresa que Gestiona:</label>
+                <select class="form-control" id="empresa_gestion" name="empresa_gestion">
+                    <option value="">Seleccionar</option>
+                    {% if empresas %}
+                        {% for emp in empresas %}
+                            <option value="{{ emp }}" {% if mode == 'edit' and target_evaluation.empresa_gestion == emp %}selected{% endif %}>{{ emp }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="campana">Campaña:</label>
+                <select class="form-control" id="campana" name="campana">
+                    <option value="">Seleccionar empresa primero</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="idioma">Idioma inicial:</label>
+                <select class="form-control" id="idioma" name="idioma">
+                    <option value="ESP" selected>ESP</option>
+                    <option value="ENG">ENG</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="empresa_solicitante">Empresa que Solicita:</label>
+                <input type="text" class="form-control" id="empresa_solicitante" name="empresa_solicitante" value="{{ target_evaluation.empresa_solicitante if mode == 'edit' else '' }}">
+            </div>
+        </div>
+
+        <!-- Segunda fila: Persona que solicita, Analista asignado, Teléfono del analista -->
+        <div class="row">
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="persona_solicitante">Persona que Solicita:</label>
+                <input type="text" class="form-control" id="persona_solicitante" name="persona_solicitante" value="{{ target_evaluation.persona_solicitante if mode == 'edit' else '' }}">
+            </div>
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="analista_asignado">Analista Asignado:</label>
+                <input type="text" class="form-control" id="analista_asignado" name="analista_asignado" value="{{ target_evaluation.analista_asignado if mode == 'edit' else '' }}">
+            </div>
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="telefono_analista">Teléfono del Analista:</label>
+                <input type="text" class="form-control" id="telefono_analista" name="telefono_analista" value="{{ target_evaluation.telefono_analista if mode == 'edit' else '' }}">
+            </div>
+        </div>
+
+        <!-- Tercera fila: Nombre del candidato, Apellidos del candidato, Puesto, Teléfono -->
+        <div class="row">
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="nombre_candidato">Nombre del Candidato:</label>
+                <input type="text" class="form-control" id="nombre_candidato" name="nombre_candidato" value="{{ target_evaluation.nombre_candidato if mode == 'edit' else '' }}" required>
+            </div>
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="apellidos_candidato">Apellidos del Candidato:</label>
+                <input type="text" class="form-control" id="apellidos_candidato" name="apellidos_candidato" value="{{ target_evaluation.apellidos_candidato if mode == 'edit' else '' }}" required>
+            </div>
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="puesto">Puesto Aplicado:</label>
+                <input type="text" class="form-control" id="puesto" name="puesto" value="{{ target_evaluation.puesto if mode == 'edit' else '' }}">
+            </div>
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="telefono">Teléfono:</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ target_evaluation.telefono if mode == 'edit' else '' }}">
+            </div>
+        </div>
+
+        <!-- Cuarta fila: Guion de Secciones, Tipo de Estudio, Maestro de Privacidad, Requiere consulta de crédito -->
+        <div class="row">
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="guion_secciones_id">Guion de Secciones:</label>
+                <select class="form-control" id="guion_secciones_id" name="guion_secciones_id" required>
+                    <option value="">Seleccionar empresa primero</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="tipo_estudio">Tipo de Estudio:</label>
+                <select class="form-control" id="tipo_estudio" name="tipo_estudio" required>
+                    <option value="">Seleccionar</option>
+                    <option value="INDICE_CONFLICTIVO">Índice Conflictivo</option>
+                    <option value="COMPETENCIA_LABORAL">Competencias Laborales</option>
+                    <option value="INTEGRIDAD">Integridad</option>
+                    <option value="MIRL_SOCIOLABORAL">MIRL Sociolaboral (Video, INE y 37 Preguntas)</option>
+                    <option value="MIRC">MIRC Crédito (Video, INE y 23 Preguntas)</option>                
+                    <option value="ESE_STD">Estudio SocioEconómico Completo</option>
+                    <option value="TEST_CORTO">Test Prueba Corta</option>
+                    <option value="TEST_GRUPO_CORTO">Test Prueba Corta de Grupos</option>
+                    <option value="TEST">Test</option>
+                    <option value="IND_COMP_MIRL">Prueba IND, COMP y MIRL</option>                        
+                    <option value="MIRL_0825">MIRL 0825</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="maestro_privacidad">Maestro de Privacidad:</label>
+                <select class="form-control" id="maestro_privacidad" name="maestro_privacidad">
+                    <option value="">Seleccionar</option>                                     
+                    <option value="ID_PRIVACIDAD_001">ID_PRIVACIDAD_001</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-3">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="requiere_consulta_credito" value="True" {% if mode == 'edit' and target_evaluation.requiere_consulta_credito %}checked{% endif %}>
+                        <strong>¿Requiere consentimiento para consulta de reporte de crédito?</strong>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quinta fila: Template por empresa -->
+        <div class="row">
+            <div class="col-lg-3 col-md-3 form-group">
+                <label for="template">Template:</label>
+                <select class="form-control" id="template" name="template">
+                    <option value="">Seleccionar empresa primero</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Guardar Evaluación</button>
+        <a href="{{ url_for('admin_list_evaluations') }}" class="btn btn-default">Cancelar</a>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const empresaSelect = document.getElementById('empresa_gestion');
+            const campanaSelect = document.getElementById('campana');
+            const guionSelect = document.getElementById('guion_secciones_id');
+            const templateSelect = document.getElementById('template');
+            
+            // Cargar campañas, guiones y templates cuando se seleccione una empresa
+            empresaSelect.addEventListener('change', function() {
+                const empresa = this.value;
+                campanaSelect.innerHTML = '<option value="">Cargando...</option>';
+                guionSelect.innerHTML = '<option value="">Cargando...</option>';
+                templateSelect.innerHTML = '<option value="">Cargando...</option>';
+                
+                if (empresa) {
+                    // Cargar campañas
+                    fetch(apiUrl(`admin/api/empresas/${encodeURIComponent(empresa)}/campanas`))
+                        .then(response => response.json())
+                        .then(data => {
+                            campanaSelect.innerHTML = '<option value="">Seleccionar</option>';
+                            if (data.campanas && data.campanas.length > 0) {
+                                data.campanas.forEach(function(campana) {
+                                    const option = document.createElement('option');
+                                    option.value = campana;
+                                    option.textContent = campana;
+                                    {% if mode == 'edit' %}
+                                    if ('{{ target_evaluation.campana }}' === campana) {
+                                        option.selected = true;
+                                    }
+                                    {% endif %}
+                                    campanaSelect.appendChild(option);
+                                });
+                            } else {
+                                campanaSelect.innerHTML = '<option value="">No hay campañas disponibles</option>';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar campañas:', error);
+                            campanaSelect.innerHTML = '<option value="">Error al cargar campañas</option>';
+                        });
+                    
+                    // Cargar guiones
+                    fetch(apiUrl(`admin/api/empresas/${encodeURIComponent(empresa)}/guiones`))
+                        .then(response => response.json())
+                        .then(data => {
+                            guionSelect.innerHTML = '<option value="">Seleccionar</option>';
+                            if (data.guiones && data.guiones.length > 0) {
+                                data.guiones.forEach(function(guion) {
+                                    const option = document.createElement('option');
+                                    option.value = guion;
+                                    option.textContent = guion;
+                                    {% if mode == 'edit' %}
+                                    // Nota: Si tienes un campo guion_secciones_id en el modelo, úsalo aquí
+                                    {% endif %}
+                                    guionSelect.appendChild(option);
+                                });
+                            } else {
+                                guionSelect.innerHTML = '<option value="">No hay guiones disponibles</option>';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar guiones:', error);
+                            guionSelect.innerHTML = '<option value="">Error al cargar guiones</option>';
+                        });
+                    
+                    // Cargar templates
+                    fetch(apiUrl(`admin/api/empresas/${encodeURIComponent(empresa)}/templates`))
+                        .then(response => response.json())
+                        .then(data => {
+                            templateSelect.innerHTML = '<option value="">Seleccionar</option>';
+                            if (data.templates && data.templates.length > 0) {
+                                data.templates.forEach(function(template) {
+                                    const option = document.createElement('option');
+                                    option.value = template;
+                                    option.textContent = template;
+                                    {% if mode == 'edit' %}
+                                    if ('{{ target_evaluation.template }}' === template) {
+                                        option.selected = true;
+                                    }
+                                    {% endif %}
+                                    templateSelect.appendChild(option);
+                                });
+                            } else {
+                                templateSelect.innerHTML = '<option value="">No hay templates disponibles</option>';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar templates:', error);
+                            templateSelect.innerHTML = '<option value="">Error al cargar templates</option>';
+                        });
+                } else {
+                    campanaSelect.innerHTML = '<option value="">Seleccionar empresa primero</option>';
+                    guionSelect.innerHTML = '<option value="">Seleccionar empresa primero</option>';
+                    templateSelect.innerHTML = '<option value="">Seleccionar empresa primero</option>';
+                }
+            });
+            
+            // Si estamos en modo edición y ya hay una empresa seleccionada, cargar sus campañas y guiones
+            {% if mode == 'edit' and target_evaluation.empresa_gestion %}
+            if (empresaSelect.value) {
+                empresaSelect.dispatchEvent(new Event('change'));
+            }
+            {% endif %}
+        });
+    </script>
+{% endblock %}

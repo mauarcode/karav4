@@ -1,0 +1,190 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Códigos Postales{% endblock %}
+
+{% block head_extra %}
+<style>
+    @media (max-width: 768px) {
+        .panel {
+            margin-bottom: 15px;
+        }
+        
+        .panel-body {
+            padding: 15px;
+        }
+        
+        .btn-lg {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .row > [class*="col-"] {
+            margin-bottom: 15px;
+        }
+        
+        .table {
+            font-size: 14px;
+        }
+        
+        code {
+            word-break: break-all;
+            font-size: 12px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .panel-body {
+            padding: 10px;
+        }
+        
+        .table {
+            font-size: 12px;
+        }
+        
+        code {
+            font-size: 11px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Códigos Postales</h1>
+    <p class="lead">Administración de la base de datos de códigos postales de México</p>
+</div>
+
+{# Mensajes de actualización #}
+{% if actualizacion_exitosa is defined %}
+    {% if actualizacion_exitosa %}
+        <div class="alert alert-success alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>¡Éxito!</strong> {{ actualizacion_mensaje }}
+            {% if actualizacion_cantidad > 0 %}
+                <br><small>Se procesaron {{ actualizacion_cantidad|int }} registros.</small>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Error:</strong> {{ actualizacion_mensaje }}
+        </div>
+    {% endif %}
+{% endif %}
+
+{# Información del archivo TXT #}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Archivo de Códigos Postales (CPdescarga.txt)</h3>
+    </div>
+    <div class="panel-body">
+        {% if txt_existe %}
+            <div class="alert alert-success">
+                <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+                <strong>Archivo encontrado:</strong> {{ txt_mensaje }}
+            </div>
+            <p><strong>Ubicación:</strong> <code>inv_datos/cp_oficiales/CPdescarga.txt</code></p>
+        {% else %}
+            <div class="alert alert-warning">
+                <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+                <strong>Advertencia:</strong> {{ txt_mensaje }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{# Información de la Base de Datos SQLite #}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Base de Datos SQLite</h3>
+    </div>
+    <div class="panel-body">
+        {% if stats.existe %}
+            <div class="alert alert-success">
+                <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+                <strong>Base de datos creada</strong>
+            </div>
+            <table class="table table-bordered">
+                <tr>
+                    <th style="width: 40%;">Total de Registros:</th>
+                    <td><strong>{{ stats.total_registros|int }}</strong></td>
+                </tr>
+                <tr>
+                    <th>Última Actualización:</th>
+                    <td>
+                        {% if stats.fecha_ultima_actualizacion %}
+                            {{ stats.fecha_ultima_actualizacion }}
+                        {% else %}
+                            <em>No disponible</em>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Ubicación:</th>
+                    <td><code>{{ db_path }}</code></td>
+                </tr>
+            </table>
+        {% else %}
+            <div class="alert alert-info">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                <strong>Base de datos no creada aún.</strong> Usa el botón "Actualizar Base de Datos" para crear la base de datos desde el archivo TXT.
+            </div>
+            <p><strong>Ubicación:</strong> <code>{{ db_path }}</code></p>
+        {% endif %}
+    </div>
+</div>
+
+{# Botones de Acción #}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Acciones</h3>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-6">
+                <form method="POST" action="{{ url_for('admin_actualizar_codigos_postales') }}" style="display: inline;">
+                    <button type="submit" class="btn btn-primary btn-lg" 
+                            {% if not txt_existe %}disabled title="El archivo TXT no existe"{% endif %}>
+                        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                        Actualizar Base de Datos
+                    </button>
+                </form>
+                <p class="help-block" style="margin-top: 10px;">
+                    <small>Lee el archivo CPdescarga.txt y actualiza la base de datos SQLite. 
+                    Esto puede tomar varios minutos dependiendo del tamaño del archivo.</small>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <button type="button" class="btn btn-default btn-lg" disabled>
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    Ingresar Manualmente
+                </button>
+                <p class="help-block" style="margin-top: 10px;">
+                    <small><em>Funcionalidad programada para más adelante.</em></small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Información adicional #}
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">Información</h3>
+    </div>
+    <div class="panel-body">
+        <ul>
+            <li>El archivo <code>CPdescarga.txt</code> debe ser descargado desde la página oficial de Correos de México.</li>
+            <li>La base de datos SQLite se crea automáticamente en el mismo directorio que el archivo TXT.</li>
+            <li>Al actualizar, todos los registros existentes se reemplazan con los datos del archivo TXT.</li>
+            <li>La base de datos incluye índices para búsquedas rápidas por código postal, asentamiento, estado y municipio.</li>
+        </ul>
+    </div>
+</div>
+
+{% endblock %}
+
