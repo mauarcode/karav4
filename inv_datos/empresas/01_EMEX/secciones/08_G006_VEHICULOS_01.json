@@ -4,6 +4,10 @@
       "ESP",
       "ENG"
     ],
+    "nombre_corto": {
+      "ESP": "VEHÍCULOS",
+      "ENG": "VEHICLES"
+    },
     "clave_grupo": "G006_01",
     "frase_introduccion": {
       "ESP": "En esta sección registraremos los vehículos asociados al domicilio.",

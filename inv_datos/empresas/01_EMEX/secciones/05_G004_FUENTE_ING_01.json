@@ -4,6 +4,10 @@
       "ESP",
       "ENG"
     ],
+    "nombre_corto": {
+      "ESP": "FUENTES DE INGRESO",
+      "ENG": "INCOME SOURCES"
+    },
     "clave_grupo": "G004_01",
     "frase_introduccion": {
       "ESP": "En esta sección registraremos las fuentes de ingreso propias y de otros que coadyuven para los gastos. Registraremos una por una.",

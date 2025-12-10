@@ -5,6 +5,10 @@
       "ENG",
       "DEU"
     ],
+    "nombre_corto": {
+      "ESP": "DATOS ACADÉMICOS",
+      "ENG": "ACADEMIC INFORMATION"
+    },
     "clave_grupo": "G002",
     "frase_introduccion": {
       "ESP": "en esta sección revisaremos tu último grado académico. En caso de que tu último grado académico sea superior a licenciatura o ingeniería, empezaremos con ello... después puedes registrar maestrías, especialidades y/o doctorados.",

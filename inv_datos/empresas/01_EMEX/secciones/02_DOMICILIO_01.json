@@ -1,6 +1,10 @@
 {
   "Domicilio_01": {
     "idiomas_disponibles": ["ESP", "ENG"],
+    "nombre_corto": {
+      "ESP": "DOMICILIO",
+      "ENG": "RESIDENCE"
+    },
     "frase_introduccion": {
       "ESP": "Ahora continuemos con los datos de tu domicilio actual.",
       "ENG": "Please proceed with the information regarding your current residence."

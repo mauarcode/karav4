@@ -4,6 +4,10 @@
       "ESP",
       "ENG"
     ],
+    "nombre_corto": {
+      "ESP": "BIENES PATRIMONIALES",
+      "ENG": "ASSETS AND PROPERTY"
+    },
     "clave_grupo": "G005_01",
     "frase_introduccion": {
       "ESP": "En esta sección registraremos los bienes patrimoniales asociados al candidato. Si no posees ningún bien inmueble, puedes indicarlo y continuaremos con la siguiente sección.",

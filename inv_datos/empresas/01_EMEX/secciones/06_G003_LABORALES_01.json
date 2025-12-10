@@ -5,6 +5,10 @@
       "ENG",
       "DEU"
     ],
+    "nombre_corto": {
+      "ESP": "EXPERIENCIA LABORAL",
+      "ENG": "WORK EXPERIENCE"
+    },
     "clave_grupo": "G003",
     "frase_introduccion": {
       "ESP": "A continuación, registraremos tu experiencia laboral. Por favor, proporciona la información de tus empleos. Si no tienes experiencia laboral, puedes indicarlo y continuaremos con la siguiente sección.",

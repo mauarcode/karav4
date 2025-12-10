@@ -1,6 +1,10 @@
 {
   "Habitantes_del_domicilio_01": {
     "idiomas_disponibles": ["ESP", "ENG"],
+    "nombre_corto": {
+      "ESP": "HABITANTES DEL DOMICILIO",
+      "ENG": "RESIDENTS OF THE HOUSEHOLD"
+    },
     "clave_grupo": "G001_01",
     "frase_introduccion": {
       "ESP": "En esta sección registraremos los familiares que habitan en tu domicilio.",

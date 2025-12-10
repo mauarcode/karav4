@@ -1,6 +1,10 @@
 {
   "00_Informativo_Lab_Est": {
     "idiomas_disponibles": ["ESP", "ENG"],
+    "nombre_corto": {
+      "ESP": "RECOLECCIÓN DE DOCUMENTACIÓN",
+      "ENG": "DOCUMENTATION COLLECTION"
+    },
     "frase_introduccion": {
       "ESP": "Procederemos ahora a recolectar la documentación necesaria....",
       "ENG": "We begin...."

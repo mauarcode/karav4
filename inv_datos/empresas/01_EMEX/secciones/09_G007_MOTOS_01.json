@@ -4,6 +4,10 @@
       "ESP",
       "ENG"
     ],
+    "nombre_corto": {
+      "ESP": "MOTOCICLETAS",
+      "ENG": "MOTORCYCLES"
+    },
     "clave_grupo": "G007_01",
     "frase_introduccion": {
       "ESP": "En esta sección registraremos las motocicletas asociadas al domicilio. ¿Tienes alguna motocicleta? Si no tienes ninguna, puedes indicarlo y continuaremos con la siguiente sección.",
