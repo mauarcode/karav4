@@ -99,17 +99,22 @@ async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
                 
                 # Buscar nombre_corto en la estructura anidada
                 for key, value in seccion_json.items():
-                    if isinstance(value, dict) and "nombre_corto" in value:
-                        nombre_corto_obj = value.get("nombre_corto")
-                        logging.info(f"[FORM] Encontrado nombre_corto en clave '{key}': {nombre_corto_obj}")
-                        break
+                    logging.info(f"[FORM] Revisando clave '{key}': tipo={type(value)}, es dict={isinstance(value, dict)}")
+                    if isinstance(value, dict):
+                        logging.info(f"[FORM] Claves dentro de '{key}': {list(value.keys())}")
+                        if "nombre_corto" in value:
+                            nombre_corto_obj = value.get("nombre_corto")
+                            logging.info(f"[FORM] Encontrado nombre_corto en clave '{key}': {nombre_corto_obj}")
+                            break
+                        else:
+                            logging.info(f"[FORM] No hay 'nombre_corto' en la clave '{key}'")
                 
                 # Si encontramos nombre_corto, extraerlo según el idioma
                 if nombre_corto_obj:
                     nombre_seccion = extraer_nombre_por_idioma(nombre_corto_obj, idioma)
                     logging.info(f"[FORM] Nombre de sección extraído: '{nombre_seccion}' (idioma: {idioma})")
                 else:
-                    logging.warning(f"[FORM] No se encontró nombre_corto en el JSON para {nombre_archivo}")
+                    logging.warning(f"[FORM] No se encontró nombre_corto en el JSON para {nombre_archivo}. Estructura completa: {list(seccion_json.keys())}")
             else:
                 logging.warning(f"[FORM] No se pudo cargar el JSON o no es un dict para {nombre_archivo}, tipo: {type(seccion_json)}")
             
