@@ -7,6 +7,7 @@ from bson import ObjectId
 # Importaciones de tu aplicación
 from app.core import gestor_estado
 from app.core.maestro_preguntas import maestro_preguntas
+from app.core.cargador_recursos import cargar_seccion_entrevista
 from app.database import get_evaluacion_collection
 from .consent import get_current_candidate # Reutilizamos la dependencia de consentimiento
 
@@ -53,25 +54,20 @@ async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
             empresa = candidate_data.get("empresa_gestion")
             preguntas = maestro_preguntas.obtener_preguntas(nombre_archivo, empresa)
             
-            # Obtener las definiciones completas para extraer nombre_corto
-            definiciones_completas = maestro_preguntas.obtener_definiciones(nombre_archivo, empresa)
+            # Cargar el JSON completo de la sección para extraer nombre_corto
+            seccion_json = cargar_seccion_entrevista(nombre_archivo, empresa)
             
             # Extraer nombre_corto del JSON
             nombre_seccion = nombre_archivo.replace('.json', '').replace('_', ' ').capitalize()  # Fallback
-            if definiciones_completas:
-                # El JSON puede tener estructura: {"ClaveSeccion": {"nombre_corto": {...}, "grupo_datos": [...]}}
-                # o puede tener nombre_corto directamente en el nivel superior
+            if seccion_json and isinstance(seccion_json, dict):
+                # El JSON tiene estructura: {"ClaveSeccion": {"nombre_corto": {...}, "grupo_datos": [...]}}
                 nombre_corto_obj = None
                 
                 # Buscar nombre_corto en la estructura anidada
-                if isinstance(definiciones_completas, dict):
-                    for key, value in definiciones_completas.items():
-                        if isinstance(value, dict) and "nombre_corto" in value:
-                            nombre_corto_obj = value.get("nombre_corto")
-                            break
-                    # Si no está en estructura anidada, buscar directamente
-                    if not nombre_corto_obj and "nombre_corto" in definiciones_completas:
-                        nombre_corto_obj = definiciones_completas.get("nombre_corto")
+                for key, value in seccion_json.items():
+                    if isinstance(value, dict) and "nombre_corto" in value:
+                        nombre_corto_obj = value.get("nombre_corto")
+                        break
                 
                 # Si encontramos nombre_corto, extraerlo según el idioma
                 if nombre_corto_obj:
