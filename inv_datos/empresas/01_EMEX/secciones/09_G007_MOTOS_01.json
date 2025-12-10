@@ -27,17 +27,20 @@
       {
         "id": 3,
         "clave": "G007_03",
-        "nombre": "Año"
+        "nombre": "Año",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 4,
         "clave": "G007_04",
-        "nombre": "Valor del Bien"
+        "nombre": "Valor del Bien",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 5,
         "clave": "G007_05",
-        "nombre": "Pago Mensual"
+        "nombre": "Pago Mensual",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 6,
@@ -47,7 +50,8 @@
       {
         "id": 7,
         "clave": "G007_07",
-        "nombre": "Saldo Crédito"
+        "nombre": "Saldo Crédito",
+        "validacion_input": "NUMERICO"
       }
     ]
   }

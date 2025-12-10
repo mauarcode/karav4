@@ -27,12 +27,14 @@
       {
         "id": 3,
         "clave": "G005_03",
-        "nombre": "Valor del Bien"
+        "nombre": "Valor del Bien",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 4,
         "clave": "G005_04",
-        "nombre": "Pago Mensual"
+        "nombre": "Pago Mensual",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 5,

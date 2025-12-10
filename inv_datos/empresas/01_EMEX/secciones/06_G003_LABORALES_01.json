@@ -29,7 +29,8 @@
       {
         "id": 3,
         "clave": "G003_03",
-        "nombre": "Último sueldo percibido"
+        "nombre": "Último sueldo percibido",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 4,

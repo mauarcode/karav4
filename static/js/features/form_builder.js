@@ -71,9 +71,18 @@ function renderFormField(campo, valor, suffix = '') {
         fieldHtml += `</div>`;
         return fieldHtml;
     } else {
+        // Determinar el tipo de input según validacion_input
+        let inputType = 'text';
+        let inputAttributes = '';
+        
+        if (campo.validacion_input === 'NUMERICO') {
+            inputType = 'number';
+            inputAttributes = 'step="any" inputmode="numeric"';
+        }
+        
         // Para campos normales, usar floating label
         let fieldHtml = `<div class="form-floating mb-3">`;
-        fieldHtml += `<input type="text" class="form-control" id="${fieldId}" name="${fieldId}" value="${valor || ''}" placeholder="${placeholder}">`;
+        fieldHtml += `<input type="${inputType}" class="form-control" id="${fieldId}" name="${fieldId}" value="${valor || ''}" placeholder="${placeholder}" ${inputAttributes}>`;
         fieldHtml += `<label for="${fieldId}">${campo.nombre}</label>`;
         fieldHtml += `</div>`;
         return fieldHtml;

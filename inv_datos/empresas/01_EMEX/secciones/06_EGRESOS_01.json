@@ -16,92 +16,110 @@
       {
         "id": 1,
         "clave": "220",
-        "nombre": "Renta mensual"
+        "nombre": "Renta mensual",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 2,
         "clave": "221",
-        "nombre": "Alimentación y Limpieza al mes"
+        "nombre": "Alimentación y Limpieza al mes",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 3,
         "clave": "222",
-        "nombre": "Electricidad por mes"
+        "nombre": "Electricidad por mes",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 4,
         "clave": "223",
-        "nombre": "Agua Potable mensual"
+        "nombre": "Agua Potable mensual",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 5,
         "clave": "224",
-        "nombre": "Gas (Natural o LP) mensual"
+        "nombre": "Gas (Natural o LP) mensual",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 6,
         "clave": "225",
-        "nombre": "Telefonía Fija mensual"
+        "nombre": "Telefonía Fija mensual",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 7,
         "clave": "226",
-        "nombre": "Educación (Colegiaturas Mensuales)"
+        "nombre": "Educación (Colegiaturas Mensuales)",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 8,
         "clave": "227",
-        "nombre": "Transporte/Gasolina al mes"
+        "nombre": "Transporte/Gasolina al mes",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 9,
         "clave": "228",
-        "nombre": "Celulares mensual"
+        "nombre": "Celulares mensual",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 10,
         "clave": "229",
-        "nombre": "Plataformas Digitales (Streaming, TV, etc.) total al mes"
+        "nombre": "Plataformas Digitales (Streaming, TV, etc.) total al mes",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 11,
         "clave": "230",
-        "nombre": "Tarjetas de Crédito (Pagos mensuales)"
+        "nombre": "Tarjetas de Crédito (Pagos mensuales)",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 12,
         "clave": "231",
-        "nombre": "Cuotas de Mantenimiento mensuales"
+        "nombre": "Cuotas de Mantenimiento mensuales",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 13,
         "clave": "232",
-        "nombre": "Pensión Alimenticia mensual"
+        "nombre": "Pensión Alimenticia mensual",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 14,
         "clave": "233",
-        "nombre": "Hipoteca o Infonavit al mes"
+        "nombre": "Hipoteca o Infonavit al mes",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 15,
         "clave": "234",
-        "nombre": "Diversión total al mes"
+        "nombre": "Diversión total al mes",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 16,
         "clave": "235",
-        "nombre": "Mensualidades de Clubes o Gimnasios"
+        "nombre": "Mensualidades de Clubes o Gimnasios",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 17,
         "clave": "236",
-        "nombre": "Vehículos (Pagos Mensuales)"
+        "nombre": "Vehículos (Pagos Mensuales)",
+        "validacion_input": "NUMERICO"
       },
       {
         "id": 18,
         "clave": "237",
-        "nombre": "Otros Gastos (Monto Mensual)"
+        "nombre": "Otros Gastos (Monto Mensual)",
+        "validacion_input": "NUMERICO"
       }
     ]
   }
