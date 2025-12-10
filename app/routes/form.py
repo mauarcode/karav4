@@ -55,11 +55,45 @@ async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
             preguntas = maestro_preguntas.obtener_preguntas(nombre_archivo, empresa)
             
             # Cargar el JSON completo de la sección para extraer nombre_corto
-            seccion_json = cargar_seccion_entrevista(nombre_archivo, empresa)
+            import logging
+            from app.config import get_empresa_secciones_dir, INV_DATOS_SECCIONES_DIR
+            from pathlib import Path
+            import json
+            
+            # Normalizar el nombre del archivo
+            nombre_archivo_normalizado = nombre_archivo
+            if not nombre_archivo_normalizado.endswith('.json'):
+                nombre_archivo_normalizado = f"{nombre_archivo_normalizado}.json"
+            
+            logging.info(f"[FORM] Cargando sección: archivo original='{nombre_archivo}', normalizado='{nombre_archivo_normalizado}', empresa='{empresa}'")
+            
+            # Intentar cargar el JSON directamente
+            seccion_json = None
+            secciones_dir = get_empresa_secciones_dir(empresa) if empresa else INV_DATOS_SECCIONES_DIR
+            archivo_path = secciones_dir / nombre_archivo_normalizado
+            
+            logging.info(f"[FORM] Buscando archivo en: {archivo_path}")
+            
+            if archivo_path.exists():
+                try:
+                    with open(archivo_path, 'r', encoding='utf-8') as f:
+                        seccion_json = json.load(f)
+                    logging.info(f"[FORM] Archivo cargado exitosamente desde: {archivo_path}")
+                except Exception as e:
+                    logging.error(f"[FORM] Error al cargar archivo {archivo_path}: {e}")
+            else:
+                logging.warning(f"[FORM] Archivo no encontrado en: {archivo_path}")
+                # Intentar con cargar_seccion_entrevista como fallback
+                seccion_json = cargar_seccion_entrevista(nombre_archivo, empresa)
+                if seccion_json:
+                    logging.info(f"[FORM] Archivo cargado usando cargar_seccion_entrevista")
+                else:
+                    logging.warning(f"[FORM] No se pudo cargar el archivo ni con cargar_seccion_entrevista")
             
             # Extraer nombre_corto del JSON
             nombre_seccion = nombre_archivo.replace('.json', '').replace('_', ' ').capitalize()  # Fallback
             if seccion_json and isinstance(seccion_json, dict):
+                logging.info(f"[FORM] Estructura del JSON: claves={list(seccion_json.keys())}")
                 # El JSON tiene estructura: {"ClaveSeccion": {"nombre_corto": {...}, "grupo_datos": [...]}}
                 nombre_corto_obj = None
                 
@@ -67,11 +101,19 @@ async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
                 for key, value in seccion_json.items():
                     if isinstance(value, dict) and "nombre_corto" in value:
                         nombre_corto_obj = value.get("nombre_corto")
+                        logging.info(f"[FORM] Encontrado nombre_corto en clave '{key}': {nombre_corto_obj}")
                         break
                 
                 # Si encontramos nombre_corto, extraerlo según el idioma
                 if nombre_corto_obj:
                     nombre_seccion = extraer_nombre_por_idioma(nombre_corto_obj, idioma)
+                    logging.info(f"[FORM] Nombre de sección extraído: '{nombre_seccion}' (idioma: {idioma})")
+                else:
+                    logging.warning(f"[FORM] No se encontró nombre_corto en el JSON para {nombre_archivo}")
+            else:
+                logging.warning(f"[FORM] No se pudo cargar el JSON o no es un dict para {nombre_archivo}, tipo: {type(seccion_json)}")
+            
+            logging.info(f"[FORM] Nombre final de sección: '{nombre_seccion}'")
             
             # Pre-procesamos las preguntas para el botón de catálogo y nombres
             for pregunta in preguntas:
