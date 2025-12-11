@@ -118,6 +118,14 @@ class MaestroDePreguntas:
                                                 logging.info(f"[INFO] Campo '{clave_grupo}' en caché le faltan campos fusionados: {campos_faltantes}. Recargando...")
                                                 del self._preguntas_cargadas[nombre_archivo]
                                                 break
+                                            # Verificar también si validacion_input está presente en grupo_datos pero no en caché o es diferente
+                                            if 'validacion_input' in campos_grupo:
+                                                validacion_cached = campo_cached.get('validacion_input')
+                                                validacion_grupo = campos_grupo.get('validacion_input')
+                                                if validacion_cached != validacion_grupo:
+                                                    logging.warning(f"[CACHE] Invalidando caché para '{nombre_archivo}': validacion_input diferente en campo '{clave_grupo}'. Caché: {validacion_cached}, Grupo: {validacion_grupo}")
+                                                    del self._preguntas_cargadas[nombre_archivo]
+                                                    break
                 except Exception as e:
                     logging.warning(f"[WARNING] Error al verificar caché para '{nombre_archivo}': {e}")
             
