@@ -162,10 +162,23 @@ class MaestroDePreguntas:
                                         # Fusionar todos los campos excepto 'clave' y 'nombre' (preservar nombre del archivo JSON)
                                         # El 'nombre' del archivo JSON tiene la estructura multiidioma correcta
                                         campos_fusionados = {k: v for k, v in item.items() if k not in ['clave', 'nombre']}
-                                        pregunta_data.update(campos_fusionados)
-                                        # Verificar que validacion_input se haya fusionado correctamente
+                                        
+                                        # Debug: verificar qué campos se van a fusionar
                                         if 'validacion_input' in campos_fusionados:
-                                            logging.info(f"[FUSION] Campo '{clave}': validacion_input={campos_fusionados.get('validacion_input')} fusionado correctamente")
+                                            logging.info(f"[FUSION] Campo '{clave}': validacion_input={campos_fusionados.get('validacion_input')} encontrado en grupo_datos")
+                                        else:
+                                            logging.warning(f"[FUSION] Campo '{clave}': NO tiene validacion_input en grupo_datos. Campos disponibles: {list(item.keys())}")
+                                        
+                                        # IMPORTANTE: Actualizar pregunta_data con campos_fusionados
+                                        # Esto sobrescribe cualquier campo existente en pregunta_data con los de grupo_datos
+                                        pregunta_data.update(campos_fusionados)
+                                        
+                                        # Verificar que validacion_input se haya fusionado correctamente DESPUÉS del update
+                                        if 'validacion_input' in pregunta_data:
+                                            logging.info(f"[FUSION] Campo '{clave}': validacion_input={pregunta_data.get('validacion_input')} fusionado correctamente en pregunta_data final")
+                                        else:
+                                            logging.error(f"[FUSION] Campo '{clave}': validacion_input NO está en pregunta_data después de fusionar. Propiedades finales: {list(pregunta_data.keys())}")
+                                        
                                         logging.info(f"[FUSION] Campo '{clave}': Campos fusionados desde grupo_datos: {list(campos_fusionados.keys())}")
                                     preguntas_lista.append(pregunta_data)
                                 elif isinstance(item, dict):
