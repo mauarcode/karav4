@@ -82,6 +82,10 @@ function renderFormField(campo, valor, suffix = '') {
         
         // Para campos normales, usar floating label
         let fieldHtml = `<div class="form-floating mb-3">`;
+        // Agregar atributo data-numeric si es numérico para validación
+        if (campo.validacion_input === 'NUMERICO') {
+            inputAttributes += ' data-numeric="true"';
+        }
         fieldHtml += `<input type="${inputType}" class="form-control" id="${fieldId}" name="${fieldId}" value="${valor || ''}" placeholder="${placeholder}" ${inputAttributes}>`;
         fieldHtml += `<label for="${fieldId}">${campo.nombre}</label>`;
         fieldHtml += `</div>`;
@@ -397,6 +401,56 @@ function setupEventListeners(mainContent, secciones) {
             }
         });
     }
+    
+    // Validación numérica en tiempo real para campos con validacion_input="NUMERICO"
+    mainContent.addEventListener('input', (e) => {
+        const input = e.target;
+        if (input.type === 'number' || input.hasAttribute('data-numeric')) {
+            // Permitir solo números, punto decimal y signo negativo
+            let value = input.value;
+            // Remover caracteres no numéricos excepto punto y signo negativo
+            value = value.replace(/[^\d.-]/g, '');
+            // Asegurar que solo haya un punto decimal
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
+            }
+            // Asegurar que el signo negativo esté solo al inicio
+            if (value.includes('-') && value.indexOf('-') !== 0) {
+                value = value.replace(/-/g, '');
+                if (value.length > 0) {
+                    value = '-' + value;
+                }
+            }
+            if (input.value !== value) {
+                input.value = value;
+            }
+        }
+    });
+    
+    // Prevenir entrada de caracteres no numéricos en campos numéricos
+    mainContent.addEventListener('keypress', (e) => {
+        const input = e.target;
+        if (input.type === 'number' || input.hasAttribute('data-numeric')) {
+            const char = String.fromCharCode(e.which || e.keyCode);
+            // Permitir números, punto, signo negativo y teclas de control
+            if (!/[0-9.\-]/.test(char) && !e.ctrlKey && !e.metaKey && 
+                !['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+                e.preventDefault();
+            }
+        }
+    });
+    
+    // Validar campos numéricos después de renderizar
+    setTimeout(() => {
+        const numericInputs = mainContent.querySelectorAll('input[type="number"], input[data-numeric]');
+        numericInputs.forEach(input => {
+            // Marcar como campo numérico si es type="number"
+            if (input.type === 'number') {
+                input.setAttribute('data-numeric', 'true');
+            }
+        });
+    }, 100);
 }
 
 /**
