@@ -121,14 +121,20 @@ async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
             logging.info(f"[FORM] Nombre final de sección: '{nombre_seccion}'")
             
             # Pre-procesamos las preguntas para el botón de catálogo y nombres
+            logging.info(f"[FORM] Procesando {len(preguntas)} preguntas para sección {nombre_archivo}")
             for pregunta in preguntas:
                 # Convertir el nombre multiidioma a string según el idioma del usuario
                 if "nombre" in pregunta:
                     pregunta["nombre"] = extraer_nombre_por_idioma(pregunta["nombre"], idioma)
                 
                 # Debug: verificar si el campo tiene validacion_input
-                if pregunta.get("validacion_input") == "NUMERICO":
-                    logging.info(f"[FORM] Campo numérico detectado en backend: {pregunta.get('clave')} - {pregunta.get('nombre')}")
+                clave_pregunta = pregunta.get('clave', 'SIN_CLAVE')
+                validacion = pregunta.get("validacion_input")
+                if validacion == "NUMERICO":
+                    logging.info(f"[FORM] Campo numérico detectado en backend: {clave_pregunta} - {pregunta.get('nombre')}")
+                elif clave_pregunta in ['201', '203', '205', '220', '221', '222', '223']:
+                    # Estos campos DEBERÍAN ser numéricos según los JSON
+                    logging.warning(f"[FORM] Campo {clave_pregunta} debería ser numérico pero validacion_input={validacion}. Propiedades: {list(pregunta.keys())}")
                 
                 # Pre-procesar catálogo si existe
                 if pregunta.get("tipo") == "CATÁLOGO":

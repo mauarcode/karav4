@@ -51,9 +51,22 @@ function renderFormField(campo, valor, suffix = '') {
     const fieldId = `${campo.clave}${suffix}`;
     const placeholder = campo.nombre || 'Ingrese un valor';
     
+    // Debug: mostrar TODAS las propiedades del campo para identificar el problema
+    if (campo.clave && (campo.clave.includes('201') || campo.clave.includes('203') || campo.clave.includes('205') || campo.clave.includes('220') || campo.clave.includes('221'))) {
+        console.log(`[FORM DEBUG] Campo: ${campo.clave}`, {
+            nombre: campo.nombre,
+            validacion_input: campo.validacion_input,
+            tipo: campo.tipo,
+            todas_las_propiedades: Object.keys(campo),
+            objeto_completo: campo
+        });
+    }
+    
     // Debug: verificar si el campo tiene validacion_input
     if (campo.validacion_input === 'NUMERICO') {
         console.log(`[FORM] Campo numérico detectado: ${campo.clave} - ${campo.nombre}`);
+    } else if (campo.clave && (campo.clave.includes('201') || campo.clave.includes('203') || campo.clave.includes('205') || campo.clave.includes('220') || campo.clave.includes('221'))) {
+        console.warn(`[FORM] Campo debería ser numérico pero no tiene validacion_input: ${campo.clave} - ${campo.nombre}`, campo);
     }
     
     // Si el campo es de tipo CATÁLOGO, creamos un select con floating label
@@ -193,6 +206,16 @@ function renderUI(secciones, datos_guardados, sidebar, mainContent) {
             const grupoKey = seccion.key.replace('.json', '');
             const registros_guardados = datos_guardados.grupos[grupoKey] || [];
             sectionHtml += `<div id="grupo-container-${grupoKey}">`;
+            // Debug: verificar preguntas de grupo
+            console.log(`[FORM] Renderizando grupo ${grupoKey} con ${seccion.preguntas.length} preguntas`);
+            if (seccion.preguntas.length > 0 && seccion.preguntas[0]) {
+                console.log(`[FORM] Primera pregunta del grupo:`, {
+                    clave: seccion.preguntas[0].clave,
+                    nombre: seccion.preguntas[0].nombre,
+                    validacion_input: seccion.preguntas[0].validacion_input,
+                    todas_propiedades: Object.keys(seccion.preguntas[0])
+                });
+            }
             if (registros_guardados.length > 0) {
                 registros_guardados.forEach((registro, index) => {
                     sectionHtml += renderGroupRecord(seccion.preguntas, registro, index, grupoKey);
@@ -203,7 +226,18 @@ function renderUI(secciones, datos_guardados, sidebar, mainContent) {
             sectionHtml += `</div>`;
             sectionHtml += `<button type="button" class="btn btn-success btn-add-group-record" data-grupo-key="${grupoKey}">Añadir otro registro</button>`;
         } else {
-            seccion.preguntas.forEach(campo => {
+            // Debug: verificar las preguntas antes de renderizar
+            console.log(`[FORM] Renderizando sección ${seccion.key} con ${seccion.preguntas.length} preguntas`);
+            seccion.preguntas.forEach((campo, idx) => {
+                // Debug: mostrar primeros campos para verificar estructura
+                if (idx < 3) {
+                    console.log(`[FORM] Pregunta ${idx}:`, {
+                        clave: campo.clave,
+                        nombre: campo.nombre,
+                        validacion_input: campo.validacion_input,
+                        todas_propiedades: Object.keys(campo)
+                    });
+                }
                 const valor = datos_guardados.entrevista[campo.clave] || '';
                 sectionHtml += renderFormField(campo, valor);
             });
