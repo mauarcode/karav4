@@ -163,12 +163,18 @@ class MaestroDePreguntas:
                                         # El 'nombre' del archivo JSON tiene la estructura multiidioma correcta
                                         campos_fusionados = {k: v for k, v in item.items() if k not in ['clave', 'nombre']}
                                         pregunta_data.update(campos_fusionados)
+                                        # Verificar que validacion_input se haya fusionado correctamente
+                                        if 'validacion_input' in campos_fusionados:
+                                            logging.info(f"[FUSION] Campo '{clave}': validacion_input={campos_fusionados.get('validacion_input')} fusionado correctamente")
                                         logging.info(f"[FUSION] Campo '{clave}': Campos fusionados desde grupo_datos: {list(campos_fusionados.keys())}")
                                     preguntas_lista.append(pregunta_data)
                                 elif isinstance(item, dict):
                                     # Si no hay archivo individual, usar el item completo como pregunta
                                     # Esto permite campos definidos solo en grupo_datos
                                     pregunta_data = item.copy()
+                                    # Verificar que validacion_input esté presente
+                                    if 'validacion_input' in pregunta_data:
+                                        logging.info(f"[FUSION] Campo '{clave}': validacion_input={pregunta_data.get('validacion_input')} desde grupo_datos (sin archivo individual)")
                                     preguntas_lista.append(pregunta_data)
                                     logging.info(f"[FUSION] Campo '{clave}': Usando definición completa desde grupo_datos (sin archivo individual)")
                         
