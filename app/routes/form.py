@@ -126,6 +126,10 @@ async def get_form_data(candidate_data: dict = Depends(get_current_candidate)):
                 if "nombre" in pregunta:
                     pregunta["nombre"] = extraer_nombre_por_idioma(pregunta["nombre"], idioma)
                 
+                # Debug: verificar si el campo tiene validacion_input
+                if pregunta.get("validacion_input") == "NUMERICO":
+                    logging.info(f"[FORM] Campo numérico detectado en backend: {pregunta.get('clave')} - {pregunta.get('nombre')}")
+                
                 # Pre-procesar catálogo si existe
                 if pregunta.get("tipo") == "CATÁLOGO":
                     catalogo_ref = pregunta.get("catalogo")

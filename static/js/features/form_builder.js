@@ -51,6 +51,11 @@ function renderFormField(campo, valor, suffix = '') {
     const fieldId = `${campo.clave}${suffix}`;
     const placeholder = campo.nombre || 'Ingrese un valor';
     
+    // Debug: verificar si el campo tiene validacion_input
+    if (campo.validacion_input === 'NUMERICO') {
+        console.log(`[FORM] Campo numérico detectado: ${campo.clave} - ${campo.nombre}`);
+    }
+    
     // Si el campo es de tipo CATÁLOGO, creamos un select con floating label
     if (campo.tipo === 'CATÁLOGO' && campo.catalogo) {
         // Crear opciones del select desde el catálogo
@@ -82,11 +87,15 @@ function renderFormField(campo, valor, suffix = '') {
         
         // Para campos normales, usar floating label
         let fieldHtml = `<div class="form-floating mb-3">`;
-        // Agregar atributo data-numeric si es numérico para validación
+        // Agregar atributo data-numeric y clase si es numérico para validación
         if (campo.validacion_input === 'NUMERICO') {
             inputAttributes += ' data-numeric="true"';
+            // Agregar clase para identificación adicional
+            const classAttr = 'class="form-control campo-numerico"';
+            fieldHtml += `<input type="${inputType}" ${classAttr} id="${fieldId}" name="${fieldId}" value="${valor || ''}" placeholder="${placeholder}" ${inputAttributes}>`;
+        } else {
+            fieldHtml += `<input type="${inputType}" class="form-control" id="${fieldId}" name="${fieldId}" value="${valor || ''}" placeholder="${placeholder}" ${inputAttributes}>`;
         }
-        fieldHtml += `<input type="${inputType}" class="form-control" id="${fieldId}" name="${fieldId}" value="${valor || ''}" placeholder="${placeholder}" ${inputAttributes}>`;
         fieldHtml += `<label for="${fieldId}">${campo.nombre}</label>`;
         fieldHtml += `</div>`;
         return fieldHtml;
@@ -402,10 +411,19 @@ function setupEventListeners(mainContent, secciones) {
         });
     }
     
+    // Función auxiliar para validar si un input es numérico
+    function esCampoNumerico(input) {
+        return input && (
+            input.type === 'number' || 
+            input.hasAttribute('data-numeric') || 
+            input.classList.contains('campo-numerico')
+        );
+    }
+    
     // Validación numérica en tiempo real para campos con validacion_input="NUMERICO"
     mainContent.addEventListener('input', (e) => {
         const input = e.target;
-        if (input.type === 'number' || input.hasAttribute('data-numeric')) {
+        if (esCampoNumerico(input)) {
             // Permitir solo números, punto decimal y signo negativo
             let value = input.value;
             // Remover caracteres no numéricos excepto punto y signo negativo
@@ -431,26 +449,73 @@ function setupEventListeners(mainContent, secciones) {
     // Prevenir entrada de caracteres no numéricos en campos numéricos
     mainContent.addEventListener('keypress', (e) => {
         const input = e.target;
-        if (input.type === 'number' || input.hasAttribute('data-numeric')) {
+        if (esCampoNumerico(input)) {
             const char = String.fromCharCode(e.which || e.keyCode);
             // Permitir números, punto, signo negativo y teclas de control
             if (!/[0-9.\-]/.test(char) && !e.ctrlKey && !e.metaKey && 
                 !['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
                 e.preventDefault();
+                return false;
             }
         }
     });
     
-    // Validar campos numéricos después de renderizar
-    setTimeout(() => {
-        const numericInputs = mainContent.querySelectorAll('input[type="number"], input[data-numeric]');
-        numericInputs.forEach(input => {
-            // Marcar como campo numérico si es type="number"
-            if (input.type === 'number') {
-                input.setAttribute('data-numeric', 'true');
+    // Prevenir pegar texto no numérico en campos numéricos
+    mainContent.addEventListener('paste', (e) => {
+        const input = e.target;
+        if (esCampoNumerico(input)) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            // Limpiar el texto pegado para dejar solo números, punto y signo negativo
+            let cleanedValue = pastedText.replace(/[^\d.-]/g, '');
+            // Asegurar que solo haya un punto decimal
+            const parts = cleanedValue.split('.');
+            if (parts.length > 2) {
+                cleanedValue = parts[0] + '.' + parts.slice(1).join('');
             }
+            // Asegurar que el signo negativo esté solo al inicio
+            if (cleanedValue.includes('-') && cleanedValue.indexOf('-') !== 0) {
+                cleanedValue = cleanedValue.replace(/-/g, '');
+                if (cleanedValue.length > 0) {
+                    cleanedValue = '-' + cleanedValue;
+                }
+            }
+            input.value = cleanedValue;
+            // Disparar evento input para que se actualice el valor
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    });
+    
+    // Validar y marcar campos numéricos después de renderizar
+    function marcarCamposNumericos() {
+        const numericInputs = mainContent.querySelectorAll('input[type="number"], input.campo-numerico, input[data-numeric]');
+        console.log(`[FORM] Marcando ${numericInputs.length} campos numéricos`);
+        numericInputs.forEach(input => {
+            // Marcar como campo numérico
+            input.setAttribute('data-numeric', 'true');
+            input.classList.add('campo-numerico');
+            // Forzar type="number" si no lo tiene
+            if (input.type !== 'number') {
+                input.type = 'number';
+            }
+            console.log(`[FORM] Campo marcado como numérico: ${input.id} (type: ${input.type})`);
         });
+    }
+    
+    // Marcar campos numéricos inmediatamente y después de cambios en el DOM
+    setTimeout(() => {
+        marcarCamposNumericos();
     }, 100);
+    
+    // Usar MutationObserver para detectar cuando se agregan nuevos campos
+    const observer = new MutationObserver(() => {
+        marcarCamposNumericos();
+    });
+    
+    observer.observe(mainContent, {
+        childList: true,
+        subtree: true
+    });
 }
 
 /**
